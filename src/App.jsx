@@ -46,7 +46,8 @@ export default function App() {
   };
   const saveEvent = event => {
     event.preventDefault(); const form = new FormData(event.currentTarget);
-    const calendarEvent = { id: crypto.randomUUID(), title: form.get('title'), start: form.get('start'), end: form.get('end') || null };
+    const endInput = form.get('end'); const endDate = endInput ? new Date(`${endInput}T00:00:00`) : null; if (endDate) endDate.setDate(endDate.getDate() + 1);
+    const calendarEvent = { id: crypto.randomUUID(), title: form.get('title'), start: form.get('start'), end: endDate ? toLocalDate(endDate) : null };
     setCalendarEvents(current => [...current, calendarEvent]); addLog(`期間指定予定を登録: ${calendarEvent.title}`); setModal(null);
   };
   const open = (type, day) => { if (type === 'plan' && Number.isInteger(day)) setPlanDay(day); setModal(type); };

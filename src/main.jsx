@@ -6,5 +6,6 @@ import './plans.css';
 import './mobile.css';
 import './record-first.css';
 import './app.css';
+import './modal-fix.css';
 
 createRoot(document.getElementById('app')).render(<StrictMode><App /></StrictMode>);
