@@ -13,4 +13,4 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-その後 `php artisan migrate` を実行すると、ER図に対応したテーブルが作成されます。
+その後 `php artisan migrate` を実行すると、記録・身体指標・毎週のトレーニング予定テーブルが作成されます。ログイン機能は持たない、自分専用の構成です。

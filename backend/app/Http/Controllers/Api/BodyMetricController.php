@@ -8,6 +8,6 @@ use Illuminate\Http\Request;
 
 class BodyMetricController extends Controller
 {
-    public function index(Request $request) { return BodyMetric::where('user_id', $request->integer('user_id'))->latest('recorded_at')->get(); }
-    public function store(Request $request) { return response()->json(BodyMetric::create($request->validate(['user_id' => ['required', 'integer'], 'weight' => ['required', 'numeric', 'min:0'], 'arm_size' => ['nullable', 'numeric', 'min:0'], 'recorded_at' => ['required', 'date']])), 201); }
+    public function index() { return BodyMetric::latest('recorded_at')->get(); }
+    public function store(Request $request) { return response()->json(BodyMetric::create($request->validate(['weight' => ['required', 'numeric', 'min:0'], 'arm_size' => ['nullable', 'numeric', 'min:0'], 'recorded_at' => ['required', 'date']])), 201); }
 }

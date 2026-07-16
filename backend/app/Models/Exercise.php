@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Exercise extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'user_id'];
+    protected $fillable = ['name'];
     public function workouts() { return $this->hasMany(Workout::class); }
 }
