@@ -4,5 +4,7 @@ import App from './App.jsx';
 import './dashboard.css';
 import './plans.css';
 import './mobile.css';
+import './record-first.css';
+import './app.css';
 
 createRoot(document.getElementById('app')).render(<StrictMode><App /></StrictMode>);

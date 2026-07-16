@@ -1,0 +1,2 @@
+.page { display: grid; gap: 16px; }
+.group { display: grid; gap: 10px; padding: 16px; border: 1px solid #e7e9e4; border-radius: 12px; background: #fff; }

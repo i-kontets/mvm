@@ -1,20 +1,66 @@
 import { useState } from 'react';
+import Dashboard from './pages/Dashboard/Dashboard.jsx';
+import Workouts from './pages/Workouts/Workouts.jsx';
+import Calendar from './pages/Calendar/Calendar.jsx';
+import Progress from './pages/Progress/Progress.jsx';
 
-const Icon = ({ children, size = 20 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg>;
-const Dumbbell = () => <Icon><path d="M6 6v12M18 6v12M4 9v6M20 9v6M6 12h12"/><path d="M2 10v4M22 10v4"/></Icon>;
-const Arrow = () => <Icon size={18}><path d="M5 12h14M13 6l6 6-6 6"/></Icon>;
-const Calendar = () => <Icon size={18}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></Icon>;
-const workouts = [['Push Day','ベンチプレス、ショルダープレス 他','8,240 kg','今日 18:30','orange'],['Pull Day','デッドリフト、ラットプルダウン 他','12,580 kg','7月14日','purple'],['Leg Day','スクワット、レッグプレス 他','15,120 kg','7月12日','blue']];
+const navItems = [['▦', 'ホーム'], ['⌁', '記録'], ['□', '予定'], ['↗', '進捗']];
+const pageTitles = { ホーム: 'ホーム', 記録: '記録', 予定: '予定', 進捗: '進捗' };
+const toLocalDate = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+const thisMonday = () => { const date = new Date(); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return date; };
+const sampleMonday = thisMonday();
+const sampleThursday = new Date(sampleMonday); sampleThursday.setDate(sampleThursday.getDate() + 3);
+const samplePlans = [{ id: 'sample-recurring', day: 2, title: '胸・三頭' }];
+const sampleEvents = [{ id: 'sample-week', title: '連続トレーニング週間', start: toLocalDate(sampleMonday), end: toLocalDate(sampleThursday) }];
 
 export default function App() {
-  const [modal, setModal] = useState(null); const [active, setActive] = useState('ダッシュボード'); const [weight, setWeight] = useState('68.4'); const [toast, setToast] = useState(''); const [plans, setPlans] = useState([{day:'月',title:'休息日',muted:true},{day:'火',title:'胸・三頭',focus:'Chest'},{day:'水',title:'背中・二頭',focus:'Back'},{day:'木',title:'休息日',muted:true},{day:'金',title:'脚',focus:'Legs'},{day:'土',title:'肩・腹筋',focus:'Shoulder'},{day:'日',title:'自由',muted:true}]);
-  const notice = text => { setToast(text); setTimeout(() => setToast(''), 2800); };
-  const saveMetric = event => { event.preventDefault(); setModal(null); notice('身体指標を保存しました'); };
-  const navItems = [['▦','ダッシュボード'],['⌁','ワークアウト'],['⌁','進捗'],['□','カレンダー']];
-  return <div className="shell"><aside className="sidebar"><a className="brand" href="#dashboard"><span className="brand-mark">M</span><span>MVM</span></a><nav>{navItems.map(([glyph,name])=><button key={name} className={`nav-link ${active===name?'active':''}`} onClick={()=>setActive(name)}><b className="nav-glyph">{glyph}</b><span>{name}</span></button>)}</nav><div className="sidebar-bottom"><button className="nav-link"><b className="nav-glyph">⚙</b><span>設定</span></button><div className="profile"><div className="avatar">HY</div><div><strong>Hiroki Y.</strong><small>Free plan</small></div><button aria-label="プロフィールメニュー">•••</button></div></div></aside><main>
-    <header className="topbar"><div><p className="eyebrow">WEDNESDAY, JUL 16</p><h1>おかえりなさい、Hiroki <span>👋</span></h1></div><button className="outline-button"><Calendar/><span>今週</span></button></header>
-    <section className="hero" id="dashboard"><div className="hero-text"><div className="spark">⚡ <span>WEEKLY GOAL</span></div><h2>今週の勢いを<br/>そのまま力に。</h2><p>あと1回のワークアウトで、今週の目標を達成できます。</p><button className="primary-button" onClick={()=>setModal('workout')}>ワークアウトを始める <Arrow/></button></div><div className="progress-circle"><svg viewBox="0 0 120 120"><circle className="track" cx="60" cy="60" r="51"/><circle className="progress" cx="60" cy="60" r="51"/></svg><div><strong>3<span>/4</span></strong><small>WORKOUTS</small></div></div><div className="hero-orb orb-one"/><div className="hero-orb orb-two"/></section>
-    <section className="stats-grid"><article className="stat-card"><div className="stat-label"><span>今月の総ボリューム</span><span className="trend good">↗ 12.4%</span></div><strong>46,820 <small>kg</small></strong><div className="bar-chart">{[35,55,43,71,62,88,76].map((height,i)=><i key={i} style={{height:`${height}%`}}/>)}</div><div className="chart-days">{['月','火','水','木','金','土','日'].map(day=><span key={day}>{day}</span>)}</div></article><article className="stat-card"><div className="stat-label"><span>現在の体重</span><button className="mini-button" onClick={()=>setModal('metric')}>記録する</button></div><strong>{weight} <small>kg</small></strong><div className="weight-row"><span className="trend good">↓ 0.6 kg</span><small>先週比</small></div><svg className="line-chart" viewBox="0 0 270 75" preserveAspectRatio="none"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#9bff5c" stopOpacity=".26"/><stop offset="1" stopColor="#9bff5c" stopOpacity="0"/></linearGradient></defs><path d="M0 53 C21 48,24 55,44 46 S68 42,85 47 S108 36,124 40 S146 45,160 32 S186 37,202 24 S232 29,270 9 L270 75 L0 75Z" fill="url(#fill)"/><path d="M0 53 C21 48,24 55,44 46 S68 42,85 47 S108 36,124 40 S146 45,160 32 S186 37,202 24 S232 29,270 9" fill="none" stroke="#9bff5c" strokeWidth="2.5"/></svg></article><article className="streak-card"><div className="stat-label"><span>継続日数</span><span>⚡</span></div><strong>12 <small>days</small></strong><p>最高記録まであと <b>5日</b> 🔥</p><div className="streak-dots">{Array.from({length:7},(_,i)=><i className={i===6?'empty':''} key={i}/>)}</div></article></section>
-    <section className="content-grid"><article className="panel workout-panel"><div className="section-heading"><div><p className="eyebrow">RECENT ACTIVITY</p><h3>最近のワークアウト</h3></div><a href="#workouts">すべて見る ›</a></div><div className="workout-list">{workouts.map(([name,detail,volume,date,color])=><div className="workout-item" key={name}><div className={`workout-icon ${color}`}><Dumbbell/></div><div className="workout-name"><strong>{name}</strong><span>{detail}</span></div><div className="workout-meta"><strong>{volume}</strong><span>{date}</span></div><button className="icon-button">›</button></div>)}</div></article><article className="panel muscle-panel"><div className="section-heading"><div><p className="eyebrow">THIS WEEK</p><h3>部位ごとのボリューム</h3></div><button className="icon-button">•••</button></div><div className="muscle-list">{[['胸',82,'8,240'],['背中',68,'6,820'],['脚',91,'9,760'],['肩',43,'3,120']].map(([part,amount,value])=><div key={part}><span>{part}</span><div className="meter"><i style={{width:`${amount}%`}}/></div><b>{value}</b></div>)}</div><p className="muted">単位: kg</p></article></section><section className="panel plan-panel"><div className="section-heading"><div><p className="eyebrow">WEEKLY ROUTINE</p><h3>今週のトレーニング予定</h3></div><button className="outline-button" onClick={()=>setModal('plan')}>＋ 予定を追加</button></div><div className="week-plan">{plans.map((plan,index)=><button className={`plan-day ${plan.muted?'rest':''} ${index===2?'today':''}`} key={plan.day} onClick={()=>!plan.muted&&setModal('plan')}><span>{plan.day}</span><b>{plan.title}</b><small>{index===2?'TODAY':plan.focus||'REST'}</small></button>)}</div></section>
-    </main>{modal&&<div className="modal-backdrop" onMouseDown={()=>setModal(null)}><form className="modal" onSubmit={modal==='metric'?saveMetric:(e)=>{e.preventDefault();setModal(null);notice(modal==='plan'?'毎週の予定を保存しました':'ワークアウトの記録を開始しました');}} onMouseDown={e=>e.stopPropagation()}><button type="button" className="dialog-close" onClick={()=>setModal(null)}>×</button><p className="eyebrow">{modal==='metric'?'BODY METRICS':modal==='plan'?'WEEKLY ROUTINE':'NEW WORKOUT'}</p><h2>{modal==='metric'?'身体指標を記録':modal==='plan'?'毎週の予定を追加':'今日のワークアウト'}</h2>{modal==='metric'?<><label>体重 (kg)<input type="number" value={weight} step="0.1" onChange={e=>setWeight(e.target.value)}/></label><label>腕周り (cm)<input type="number" defaultValue="34.2" step="0.1"/></label></>:modal==='plan'?<><label>曜日<select defaultValue="2"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">土曜日</option><option value="0">日曜日</option></select></label><label>メニュー名<input defaultValue="胸・三頭"/></label><label>メモ<input placeholder="例: ベンチプレスから始める"/></label></>:<><label>ワークアウト名<input defaultValue="Push Day"/></label><label>日付<input type="date" defaultValue="2026-07-16"/></label></>}<button className="primary-button">{modal==='metric'?'保存する':modal==='plan'?'予定を保存する':'記録を開始する'} <Arrow/></button></form></div>}{toast&&<div className="toast">✓ {toast}</div>}</div>;
+  const [activePage, setActivePage] = useState('ホーム');
+  const [modal, setModal] = useState(null);
+  const [workouts, setWorkouts] = useState([]);
+  const [plans, setPlans] = useState(samplePlans);
+  const [calendarEvents, setCalendarEvents] = useState(sampleEvents);
+  const [metrics, setMetrics] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [planDay, setPlanDay] = useState(1);
+
+  const addLog = message => {
+    const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    const entry = { id: crypto.randomUUID(), time, message };
+    setLogs(current => [entry, ...current]);
+    console.info('[MVM Activity Log]', entry);
+  };
+  const saveWorkout = event => {
+    event.preventDefault(); const form = new FormData(event.currentTarget);
+    const workout = { id: crypto.randomUUID(), name: form.get('name'), exercise: form.get('exercise'), weight: form.get('weight'), reps: form.get('reps'), date: form.get('date') };
+    setWorkouts(current => [workout, ...current]); addLog(`ワークアウトを登録: ${workout.name}（${workout.exercise}）`); setModal(null);
+  };
+  const savePlan = event => {
+    event.preventDefault(); const form = new FormData(event.currentTarget);
+    const plan = { id: crypto.randomUUID(), day: Number(form.get('day')), title: form.get('title') };
+    setPlans(current => [...current, plan].sort((a, b) => a.day - b.day)); addLog(`週間予定を登録: ${plan.title}`); setModal(null);
+  };
+  const saveMetric = event => {
+    event.preventDefault(); const form = new FormData(event.currentTarget);
+    const metric = { id: crypto.randomUUID(), weight: form.get('weight'), date: form.get('date') };
+    setMetrics(current => [metric, ...current]); addLog(`体重を登録: ${metric.weight} kg`); setModal(null);
+  };
+  const saveEvent = event => {
+    event.preventDefault(); const form = new FormData(event.currentTarget);
+    const calendarEvent = { id: crypto.randomUUID(), title: form.get('title'), start: form.get('start'), end: form.get('end') || null };
+    setCalendarEvents(current => [...current, calendarEvent]); addLog(`期間指定予定を登録: ${calendarEvent.title}`); setModal(null);
+  };
+  const open = (type, day) => { if (type === 'plan' && Number.isInteger(day)) setPlanDay(day); setModal(type); };
+  const pages = { ホーム: <Dashboard workouts={workouts} plans={plans} metrics={metrics} logs={logs} onStartWorkout={() => open('workout')} onAddPlan={() => open('plan')} onAddMetric={() => open('metric')}/>, 記録: <Workouts workouts={workouts} onAdd={() => open('workout')}/>, 予定: <Calendar plans={plans} calendarEvents={calendarEvents} onAdd={day => open('plan', day)} onAddOneTime={() => open('event')}/>, 進捗: <Progress workouts={workouts} metrics={metrics}/> };
+
+  return <div className="shell">
+    <aside className="sidebar"><a className="brand" href="#home"><span className="brand-mark">M</span><span>MVM</span></a><nav>{navItems.map(([icon, name]) => <button key={name} className={`nav-link ${activePage === name ? 'active' : ''}`} onClick={() => setActivePage(name)}><b className="nav-glyph">{icon}</b><span>{name}</span></button>)}</nav></aside>
+    <main><div className="desktop-page-label">{pageTitles[activePage]}</div>{pages[activePage]}</main>
+    {modal && <Modal type={modal} planDay={planDay} onClose={() => setModal(null)} onSubmit={modal === 'workout' ? saveWorkout : modal === 'plan' ? savePlan : modal === 'event' ? saveEvent : saveMetric}/>} 
+  </div>;
+}
+
+function Modal({ type, planDay, onClose, onSubmit }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const labels = { workout: ['NEW WORKOUT', 'ワークアウトを記録'], plan: ['WEEKLY ROUTINE', '毎週の予定を追加'], event: ['DATE EVENT', '期間指定の予定を追加'], metric: ['BODY METRIC', '体重を記録'] }[type];
+  return <div className="modal-backdrop" onMouseDown={onClose}><form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}><button className="dialog-close" type="button" onClick={onClose}>×</button><p className="eyebrow">{labels[0]}</p><h2>{labels[1]}</h2>{type === 'workout' && <><label>ワークアウト名<input name="name" placeholder="例: Push Day" required autoFocus/></label><label>種目<input name="exercise" placeholder="例: ベンチプレス" required/></label><div className="input-grid"><label>重量 (kg)<input name="weight" type="number" min="0" step="0.5" required/></label><label>回数<input name="reps" type="number" min="1" required/></label></div><label>日付<input name="date" type="date" defaultValue={today} required/></label></>}{type === 'plan' && <><label>曜日<select name="day" defaultValue={planDay}><option value="0">日曜日</option><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">土曜日</option></select></label><label>メニュー名<input name="title" placeholder="例: 胸・三頭" required autoFocus/></label></>}{type === 'event' && <><label>予定名<input name="title" placeholder="例: 連続トレーニング週間" required autoFocus/></label><div className="input-grid"><label>開始日<input name="start" type="date" defaultValue={today} required/></label><label>終了日<input name="end" type="date"/></label></div></>}{type === 'metric' && <><label>体重 (kg)<input name="weight" type="number" min="0" step="0.1" required autoFocus/></label><label>記録日<input name="date" type="date" defaultValue={today} required/></label></>}<button className="primary-button">登録する <span>→</span></button></form></div>;
 }
