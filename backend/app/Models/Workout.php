@@ -9,8 +9,8 @@ class Workout extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    protected $fillable = ['exercise_id', 'date'];
-    protected $casts = ['date' => 'date'];
+    protected $fillable = ['name', 'exercise_id', 'date', 'category', 'tags'];
+    protected $casts = ['date' => 'date', 'tags' => 'array'];
     public function exercise() { return $this->belongsTo(Exercise::class); }
     public function sets() { return $this->hasMany(WorkoutSet::class); }
 }

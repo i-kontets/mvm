@@ -3,3 +3,6 @@ dist/
 .env
 .DS_Store
 backend/vendor/
+api/vendor/
+api/.env
+api/database/*.sqlite

@@ -1,0 +1,52 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: mvm-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mvm}
+      MYSQL_USER: ${MYSQL_USER:-mvm_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mvm_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mvm_root_password}
+      TZ: Asia/Tokyo
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mvm-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: mvm-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 32M
+    ports:
+      - "${PMA_PORT:-8080}:80"
+
+  api:
+    build:
+      context: ./api
+    container_name: mvm-api
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./api:/var/www
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+volumes:
+  mvm-mysql-data:
