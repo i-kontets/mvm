@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `workouts` (
   `date` DATE NOT NULL COMMENT '実施日',
   `category` VARCHAR(100) NULL COMMENT 'メニューのカテゴリ',
   `tags` JSON NULL COMMENT '検索・分類用ラベルの配列',
+  `weight_mode` VARCHAR(20) NOT NULL DEFAULT 'weighted' COMMENT '重量方式（weighted=重量、bodyweight=自重）',
   PRIMARY KEY (`id`),
   KEY `workouts_date_index` (`date`),
   KEY `workouts_category_index` (`category`),
@@ -87,3 +88,13 @@ CREATE TABLE IF NOT EXISTS `reference_videos` (
   PRIMARY KEY (`id`),
   KEY `reference_videos_category_index` (`category`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='トレーニングの参考動画';
+
+CREATE TABLE IF NOT EXISTS `workout_videos` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ワークアウト動画紐付けID',
+  `workout_id` BIGINT UNSIGNED NOT NULL COMMENT 'ワークアウトID',
+  `reference_video_id` BIGINT UNSIGNED NOT NULL COMMENT '参考動画ID',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `workout_videos_unique` (`workout_id`, `reference_video_id`),
+  CONSTRAINT `workout_videos_workout_id_foreign` FOREIGN KEY (`workout_id`) REFERENCES `workouts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `workout_videos_reference_video_id_foreign` FOREIGN KEY (`reference_video_id`) REFERENCES `reference_videos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ワークアウト当日に使用した参考動画';

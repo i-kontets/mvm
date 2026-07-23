@@ -9,5 +9,7 @@ import './app.css';
 import './modal-fix.css';
 import './video-nav.css';
 import './schedule-detail.css';
+import './workout-card.css';
+import './progress-layout.css';
 
 createRoot(document.getElementById('app')).render(<StrictMode><App /></StrictMode>);
