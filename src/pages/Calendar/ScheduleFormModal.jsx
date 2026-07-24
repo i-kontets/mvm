@@ -5,7 +5,6 @@ export function WeeklyPlanModal({ planDay, onClose, onSubmit }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
-        <p className="eyebrow">WEEKLY ROUTINE</p>
         <h2>毎週の予定を追加</h2>
 
         <DaySelect defaultValue={planDay} />
@@ -26,7 +25,6 @@ export function DateEventModal({ eventDate, onClose, onSubmit }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
-        <p className="eyebrow">DATE EVENT</p>
         <h2>期間指定の予定を追加</h2>
 
         <label>
@@ -60,7 +58,6 @@ export function ScheduleDetailModal({ selected, onClose, onSubmit, onDelete }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
-        <p className="eyebrow">{isPlan ? 'WEEKLY ROUTINE' : 'DATE EVENT'}</p>
         <h2>{isPlan ? '毎週の予定を編集' : '期間指定予定を編集'}</h2>
 
         {isPlan ? (

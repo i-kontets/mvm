@@ -24,7 +24,6 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
   return (
     <section className={styles.page}>
       <header>
-        <p>WORKOUT LOG</p>
         <h1>記録</h1>
         <span>過去のメニューを、カテゴリ・ラベルで探せます。</span>
       </header>

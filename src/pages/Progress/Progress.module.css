@@ -1,1 +1,177 @@
-.page{display:grid;gap:15px}.page header p,.metrics p,.note p{margin:0 0 6px;color:#7d8880;font:10px 'DM Mono',monospace;letter-spacing:.11em}.page h1{margin:0;font-size:24px;letter-spacing:-1px}.page header span{color:#879087;font-size:11px}.metrics{display:grid;grid-template-columns:1fr;gap:9px}.metrics article{display:grid;gap:3px;padding:17px;border:1px solid #e7e9e4;border-radius:12px;background:#fff}.metrics strong{font-size:24px;letter-spacing:-1px}.metrics small{font-size:10px;color:#89938c}.metrics span{color:#929b94;font-size:10px}.empty,.note{padding:35px 20px;text-align:center;border:1px dashed #d6ddd4;border-radius:13px;background:#fbfdf9}.empty b{font-size:13px}.empty p{margin:8px auto 0;max-width:240px;color:#8b948d;font-size:11px;line-height:1.65}.note{border-style:solid;text-align:left}.note b{font-size:12px;line-height:1.7}@media(min-width:621px){.metrics{grid-template-columns:repeat(3,1fr)}}
+.page {
+  display: grid;
+  gap: 15px;
+}
+
+.page header p,
+.metrics p,
+.panelHead p {
+  margin: 0 0 6px;
+  color: #7d8880;
+  font: 10px 'DM Mono', monospace;
+  letter-spacing: .11em;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+
+.page header span {
+  color: #879087;
+  font-size: 11px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.metrics article,
+.chartPanel,
+.exercisePanel {
+  border: 1px solid #e7e9e4;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.metrics article {
+  display: grid;
+  gap: 3px;
+  padding: 17px;
+}
+
+.metrics strong {
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+
+.metrics small {
+  font-size: 10px;
+  color: #89938c;
+}
+
+.metrics span {
+  color: #929b94;
+  font-size: 10px;
+}
+
+.empty {
+  padding: 35px 20px;
+  text-align: center;
+  border: 1px dashed #d6ddd4;
+  border-radius: 13px;
+  background: #fbfdf9;
+}
+
+.empty b {
+  font-size: 13px;
+}
+
+.empty p {
+  margin: 8px auto 0;
+  max-width: 240px;
+  color: #8b948d;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.charts {
+  display: grid;
+  gap: 11px;
+}
+
+.chartPanel,
+.exercisePanel {
+  padding: 16px;
+}
+
+.panelHead {
+  display: grid;
+  gap: 1px;
+  margin-bottom: 12px;
+}
+
+.panelHead h2 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: -.3px;
+}
+
+.chartBox {
+  height: 210px;
+}
+
+.emptyLine {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #8b948d;
+  font-size: 11px;
+}
+
+.exerciseGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.exerciseCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 118px;
+  gap: 10px;
+  align-items: center;
+  min-height: 92px;
+  padding: 13px;
+  border: 1px solid #eef1eb;
+  border-radius: 10px;
+  background: #fbfdf9;
+}
+
+.exerciseCard span {
+  display: block;
+  color: #5e6b62;
+  font-size: 12px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exerciseCard strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 22px;
+  letter-spacing: -1px;
+}
+
+.exerciseCard small {
+  color: #89938c;
+  font-size: 10px;
+}
+
+.miniChart {
+  height: 58px;
+  min-width: 0;
+}
+
+@media (min-width: 621px) {
+  .metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exercisePanel {
+    grid-column: 1 / -1;
+  }
+
+  .exerciseGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -3,7 +3,6 @@ export default function VideoFormModal({ editingVideo, onClose, onSubmit }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
-        <p className="eyebrow">REFERENCE VIDEO</p>
         <h2>{editingVideo ? '参考動画を編集' : '参考動画を保存'}</h2>
 
         <label>
@@ -18,7 +17,7 @@ export default function VideoFormModal({ editingVideo, onClose, onSubmit }) {
         </label>
 
         <label>
-          YouTube URL
+          動画リンク
           <input
             name="url"
             type="url"

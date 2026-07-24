@@ -24,6 +24,7 @@ const sampleThursday = new Date(sampleMonday);
 sampleThursday.setDate(sampleThursday.getDate() + 3);
 const samplePlans = [{ id: 'sample-recurring', day: 2, title: '胸・三頭' }];
 const sampleEvents = [{ id: 'sample-week', title: '連続トレーニング週間', start: toLocalDate(sampleMonday), end: toLocalDate(sampleThursday) }];
+const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
 export default function App() {
   const [activePage, setActivePage] = useState('ホーム');
@@ -251,6 +252,10 @@ export default function App() {
     categories: [...new Set(workouts.map(item => item.category).filter(Boolean))],
     tags: [...new Set(workouts.flatMap(item => item.tags || []))],
   };
+  const dashboardLogs = [
+    ...logs,
+    ...buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos }),
+  ].slice(0, 8);
 
   const pages = {
     ホーム: (
@@ -258,7 +263,7 @@ export default function App() {
         workouts={workouts}
         plans={plans}
         metrics={metrics}
-        logs={logs}
+        logs={dashboardLogs}
         onStartWorkout={() => open('workout')}
         onAddPlan={() => open('plan')}
         onAddMetric={() => open('metric')}
@@ -342,4 +347,46 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos }) {
+  const datedLogs = [
+    ...workouts.map(workout => ({
+      id: `saved-workout-${workout.id}`,
+      time: workout.date,
+      message: `記録: ${workout.name}（${workout.exercise}）`,
+      date: workout.date,
+    })),
+    ...metrics.map(metric => ({
+      id: `saved-metric-${metric.id}`,
+      time: metric.date,
+      message: `体重: ${metric.weight} kg`,
+      date: metric.date,
+    })),
+    ...calendarEvents
+      .filter(event => !String(event.id).startsWith('sample-'))
+      .map(event => ({
+        id: `saved-event-${event.id}`,
+        time: event.start,
+        message: `期間指定予定: ${event.title}`,
+        date: event.start,
+      })),
+  ].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  const undatedLogs = [
+    ...plans
+      .filter(plan => !String(plan.id).startsWith('sample-'))
+      .map(plan => ({
+        id: `saved-plan-${plan.id}`,
+        time: `${weekdays[plan.day]}曜`,
+        message: `毎週の予定: ${plan.title}`,
+      })),
+    ...videos.map(video => ({
+      id: `saved-video-${video.id}`,
+      time: '動画',
+      message: `参考動画: ${video.title}`,
+    })),
+  ];
+
+  return [...datedLogs, ...undatedLogs];
 }

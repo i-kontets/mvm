@@ -18,7 +18,6 @@ export default function WorkoutFormModal({
     <div className="modal-backdrop" onMouseDown={onClose}>
       <form className="modal" onSubmit={onSubmit} onMouseDown={event => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
-        <p className="eyebrow">NEW WORKOUT</p>
         <h2>{editingWorkout ? 'ワークアウトを編集' : 'ワークアウトを記録'}</h2>
 
         <WorkoutSuggestions suggestions={suggestions} />
