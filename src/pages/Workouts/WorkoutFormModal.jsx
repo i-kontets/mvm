@@ -9,10 +9,21 @@ export default function WorkoutFormModal({
   onSubmit,
 }) {
   const [isBodyweight, setIsBodyweight] = useState(editingWorkout?.weight_mode === 'bodyweight');
+  const [recordType, setRecordType] = useState(editingWorkout?.record_type || 'strength');
 
   useEffect(() => {
     setIsBodyweight(editingWorkout?.weight_mode === 'bodyweight');
+    setRecordType(editingWorkout?.record_type || 'strength');
   }, [editingWorkout]);
+
+  const isCardio = recordType === 'cardio';
+
+  const handleExerciseChange = event => {
+    if (event.target.value.includes('エアロバイク')) {
+      setRecordType('cardio');
+      setIsBodyweight(false);
+    }
+  };
 
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
@@ -21,6 +32,26 @@ export default function WorkoutFormModal({
         <h2>{editingWorkout ? 'ワークアウトを編集' : 'ワークアウトを記録'}</h2>
 
         <WorkoutSuggestions suggestions={suggestions} />
+
+        <label>
+          場所
+          <select name="training_place" defaultValue={editingWorkout?.training_place || 'gym'}>
+            <option value="gym">ジム</option>
+            <option value="home">自宅</option>
+          </select>
+        </label>
+
+        <label>
+          記録タイプ
+          <select
+            name="record_type"
+            value={recordType}
+            onChange={event => setRecordType(event.target.value)}
+          >
+            <option value="strength">筋トレ</option>
+            <option value="cardio">有酸素</option>
+          </select>
+        </label>
 
         <label>
           ワークアウト名
@@ -40,6 +71,7 @@ export default function WorkoutFormModal({
             name="exercise"
             list="exercise-names"
             defaultValue={editingWorkout?.exercise || ''}
+            onChange={handleExerciseChange}
             placeholder="例: ベンチプレス"
             required
           />
@@ -65,37 +97,53 @@ export default function WorkoutFormModal({
           />
         </label>
 
-        <div className="input-grid">
+        {isCardio ? (
           <label>
-            重量方式
-            <select
-              name="weight_mode"
-              defaultValue={editingWorkout?.weight_mode || 'weighted'}
-              onChange={event => setIsBodyweight(event.target.value === 'bodyweight')}
-            >
-              <option value="weighted">重量を入力</option>
-              <option value="bodyweight">自重</option>
-            </select>
+            時間（分）
+            <input
+              name="duration_minutes"
+              type="number"
+              min="1"
+              defaultValue={editingWorkout?.duration_minutes || ''}
+              placeholder="例: 20"
+              required
+            />
           </label>
+        ) : (
+          <>
+            <div className="input-grid">
+              <label>
+                重量方式
+                <select
+                  name="weight_mode"
+                  defaultValue={editingWorkout?.weight_mode || 'weighted'}
+                  onChange={event => setIsBodyweight(event.target.value === 'bodyweight')}
+                >
+                  <option value="weighted">重量を入力</option>
+                  <option value="bodyweight">自重</option>
+                </select>
+              </label>
 
-          <label>
-            回数
-            <input name="reps" type="number" min="1" defaultValue={editingWorkout?.reps || ''} required />
-          </label>
-        </div>
+              <label>
+                回数
+                <input name="reps" type="number" min="1" defaultValue={editingWorkout?.reps || ''} required />
+              </label>
+            </div>
 
-        <label>
-          重量 (kg)
-          <input
-            name="weight"
-            type="number"
-            min="0"
-            step="0.5"
-            defaultValue={editingWorkout?.weight || ''}
-            disabled={isBodyweight}
-            required={!isBodyweight}
-          />
-        </label>
+            <label>
+              重量 (kg)
+              <input
+                name="weight"
+                type="number"
+                min="0"
+                step="0.5"
+                defaultValue={editingWorkout?.weight || ''}
+                disabled={isBodyweight}
+                required={!isBodyweight}
+              />
+            </label>
+          </>
+        )}
 
         <label>
           日付

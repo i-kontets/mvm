@@ -25,6 +25,12 @@ sampleThursday.setDate(sampleThursday.getDate() + 3);
 const samplePlans = [{ id: 'sample-recurring', day: 2, title: '胸・三頭' }];
 const sampleEvents = [{ id: 'sample-week', title: '連続トレーニング週間', start: toLocalDate(sampleMonday), end: toLocalDate(sampleThursday) }];
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+const gymExercises = [
+  'シーテッドレッグプレス',
+  'チェストプレス',
+  'ショルダープレス',
+  '自転車エルゴメーター／エアロバイク',
+];
 
 export default function App() {
   const [activePage, setActivePage] = useState('ホーム');
@@ -80,6 +86,7 @@ export default function App() {
   const saveWorkout = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const recordType = form.get('record_type') || 'strength';
     const weightMode = form.get('weight_mode') || 'weighted';
     const tags = String(form.get('tags') || '')
       .split(',')
@@ -90,9 +97,12 @@ export default function App() {
       exercise: form.get('exercise'),
       category: String(form.get('category') || '').trim(),
       tags,
+      training_place: form.get('training_place') || 'gym',
+      record_type: recordType,
       weight_mode: weightMode,
-      weight: weightMode === 'bodyweight' ? 0 : Number(form.get('weight') || 0),
-      reps: Number(form.get('reps')),
+      weight: recordType === 'cardio' || weightMode === 'bodyweight' ? 0 : Number(form.get('weight') || 0),
+      reps: recordType === 'cardio' ? null : Number(form.get('reps')),
+      duration_minutes: recordType === 'cardio' ? Number(form.get('duration_minutes')) : null,
       date: form.get('date'),
       video_ids: form.getAll('video_ids').map(Number),
     };
@@ -104,7 +114,7 @@ export default function App() {
         await api.post('/workouts', { ...workout, id: crypto.randomUUID() });
       }
       await loadData();
-      addLog(`ワークアウトを${editingWorkout ? '更新' : '登録'}: ${workout.name}（${workout.exercise}）`);
+      addLog(`ワークアウトを${editingWorkout ? '更新' : '登録'}: ${placeLabel(workout.training_place)} ${workout.name}（${workout.exercise}）`);
       closeModal();
     } catch (error) {
       addLog(error.message);
@@ -248,7 +258,7 @@ export default function App() {
 
   const suggestions = {
     names: [...new Set(workouts.map(item => item.name))],
-    exercises: [...new Set(workouts.map(item => item.exercise))],
+    exercises: [...new Set([...gymExercises, ...workouts.map(item => item.exercise)])],
     categories: [...new Set(workouts.map(item => item.category).filter(Boolean))],
     tags: [...new Set(workouts.flatMap(item => item.tags || []))],
   };
@@ -354,7 +364,7 @@ function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos 
     ...workouts.map(workout => ({
       id: `saved-workout-${workout.id}`,
       time: workout.date,
-      message: `記録: ${workout.name}（${workout.exercise}）`,
+      message: `記録: ${placeLabel(workout.training_place)} ${workout.name}（${workout.exercise}）`,
       date: workout.date,
     })),
     ...metrics.map(metric => ({
@@ -389,4 +399,8 @@ function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos 
   ];
 
   return [...datedLogs, ...undatedLogs];
+}
+
+function placeLabel(place) {
+  return place === 'gym' ? 'ジム' : '自宅';
 }

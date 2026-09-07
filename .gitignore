@@ -6,3 +6,5 @@ backend/vendor/
 api/vendor/
 api/.env
 api/database/*.sqlite
+roripoppu/
+lolipop-upload/

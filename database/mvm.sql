@@ -23,10 +23,15 @@ CREATE TABLE IF NOT EXISTS `workouts` (
   `date` DATE NOT NULL COMMENT '実施日',
   `category` VARCHAR(100) NULL COMMENT 'メニューのカテゴリ',
   `tags` JSON NULL COMMENT '検索・分類用ラベルの配列',
+  `training_place` VARCHAR(20) NOT NULL DEFAULT 'home' COMMENT '実施場所（home=自宅、gym=ジム）',
+  `record_type` VARCHAR(20) NOT NULL DEFAULT 'strength' COMMENT '記録タイプ（strength=筋トレ、cardio=有酸素）',
+  `duration_minutes` INT UNSIGNED NULL COMMENT '有酸素運動の実施時間（分）',
   `weight_mode` VARCHAR(20) NOT NULL DEFAULT 'weighted' COMMENT '重量方式（weighted=重量、bodyweight=自重）',
   PRIMARY KEY (`id`),
   KEY `workouts_date_index` (`date`),
   KEY `workouts_category_index` (`category`),
+  KEY `workouts_training_place_index` (`training_place`),
+  KEY `workouts_record_type_index` (`record_type`),
   CONSTRAINT `workouts_exercise_id_foreign`
     FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`id`)
     ON DELETE RESTRICT
@@ -36,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `workout_sets` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'セットID',
   `workout_id` BIGINT UNSIGNED NOT NULL COMMENT 'ワークアウトID',
   `weight` DECIMAL(7,2) NOT NULL COMMENT '重量（kg）',
-  `reps` INT UNSIGNED NOT NULL COMMENT '回数',
+  `reps` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '回数（有酸素記録では0）',
   PRIMARY KEY (`id`),
   KEY `workout_sets_workout_id_index` (`workout_id`),
   CONSTRAINT `workout_sets_workout_id_foreign`

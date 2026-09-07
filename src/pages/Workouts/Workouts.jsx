@@ -3,6 +3,7 @@ import styles from './Workouts.module.css';
 
 export default function Workouts({ workouts, videos, onAdd, onEdit }) {
   const [category, setCategory] = useState('all');
+  const [place, setPlace] = useState('all');
   const [keyword, setKeyword] = useState('');
 
   const categories = useMemo(
@@ -17,6 +18,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
     const searchable = `${workout.name} ${workout.exercise} ${(workout.tags || []).join(' ')}`;
     return (
       (category === 'all' || workout.category === category) &&
+      (place === 'all' || workout.training_place === place) &&
       searchable.toLowerCase().includes(keyword.toLowerCase())
     );
   });
@@ -38,6 +40,22 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
         </div>
       ) : (
         <>
+          <section className={styles.placeTabs} aria-label="場所で絞り込み">
+            {[
+              ['all', 'すべて'],
+              ['home', '自宅'],
+              ['gym', 'ジム'],
+            ].map(([value, label]) => (
+              <button
+                className={place === value ? styles.activeTab : ''}
+                key={value}
+                onClick={() => setPlace(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </section>
+
           <section className={styles.filters}>
             <input
               value={keyword}
@@ -71,14 +89,26 @@ function WorkoutCard({ workout, videoById, onEdit }) {
     <article className={styles.card}>
       <div className={styles.cardHeader}>
         <time>{workout.date}</time>
-        {workout.category && <span className={styles.category}>{workout.category}</span>}
+        <div className={styles.badges}>
+          <span className={styles.place}>{placeLabel(workout.training_place)}</span>
+          {workout.category && <span className={styles.category}>{workout.category}</span>}
+        </div>
       </div>
       <h2>{workout.name}</h2>
       <p>{workout.exercise}</p>
       <div className={styles.cardBottom}>
         <strong>
-          {workout.weight_mode === 'bodyweight' ? '自重' : `${workout.weight} kg`}
-          <span> × {workout.reps}回</span>
+          {workout.record_type === 'cardio' ? (
+            <>
+              {workout.duration_minutes}
+              <span> 分</span>
+            </>
+          ) : (
+            <>
+              {workout.weight_mode === 'bodyweight' ? '自重' : `${workout.weight} kg`}
+              <span> × {workout.reps}回</span>
+            </>
+          )}
         </strong>
         <div className={styles.tags}>
           {(workout.tags || []).map(tag => <i key={tag}>#{tag}</i>)}
@@ -93,4 +123,8 @@ function WorkoutCard({ workout, videoById, onEdit }) {
       <button className={styles.edit} onClick={() => onEdit(workout)}>編集</button>
     </article>
   );
+}
+
+function placeLabel(place) {
+  return place === 'gym' ? 'ジム' : '自宅';
 }

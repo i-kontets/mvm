@@ -14,6 +14,7 @@ export default function Dashboard({
   const today = new Date().getDay();
   const todayPlan = plans.find(plan => Number(plan.day) === today);
   const latestWeight = metrics[0];
+  const gymCount = workouts.filter(workout => workout.training_place === 'gym').length;
 
   return (
     <section className={styles.page}>
@@ -62,7 +63,7 @@ export default function Dashboard({
             {workouts.length}
             <small> 回</small>
           </strong>
-          <span>登録した記録がここに集計されます</span>
+          <span>ジム {gymCount} 回 / 自宅 {workouts.length - gymCount} 回</span>
         </article>
       </div>
 
@@ -81,8 +82,11 @@ export default function Dashboard({
               <div className={styles.row} key={workout.id}>
                 <div className={styles.icon}>⌁</div>
                 <div>
-                  <b>{workout.name}</b>
-                  <span>{workout.exercise} · {workout.weight} kg × {workout.reps}回</span>
+                  <b>
+                    <em>{placeLabel(workout.training_place)}</em>
+                    {workout.name}
+                  </b>
+                  <span>{workout.exercise} · {workoutSummary(workout)}</span>
                 </div>
                 <time>{workout.date}</time>
               </div>
@@ -128,6 +132,20 @@ export default function Dashboard({
       </section>
     </section>
   );
+}
+
+function placeLabel(place) {
+  return place === 'gym' ? 'ジム' : '自宅';
+}
+
+function workoutSummary(workout) {
+  if (workout.record_type === 'cardio') {
+    return `${workout.duration_minutes}分`;
+  }
+
+  const weight = workout.weight_mode === 'bodyweight' ? '自重' : `${workout.weight} kg`;
+
+  return `${weight} × ${workout.reps}回`;
 }
 
 function Empty({ text, action, onClick }) {

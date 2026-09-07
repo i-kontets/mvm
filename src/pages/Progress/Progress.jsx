@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { useMemo, useState } from 'react';
 import styles from './Progress.module.css';
 
 ChartJS.register(
@@ -49,10 +50,17 @@ const chartOptions = {
 };
 
 export default function Progress({ workouts, metrics }) {
+  const [place, setPlace] = useState('all');
   const sortedMetrics = sortByDate(metrics);
-  const sortedWorkouts = sortByDate(workouts);
-  const weightedWorkouts = workouts.filter(workout => workout.weight_mode !== 'bodyweight');
-  const bodyweightWorkouts = workouts.filter(workout => workout.weight_mode === 'bodyweight');
+  const targetWorkouts = useMemo(
+    () => workouts.filter(workout => place === 'all' || workout.training_place === place),
+    [place, workouts],
+  );
+  const strengthWorkouts = targetWorkouts.filter(workout => workout.record_type !== 'cardio');
+  const cardioWorkouts = targetWorkouts.filter(workout => workout.record_type === 'cardio');
+  const sortedWorkouts = sortByDate(strengthWorkouts);
+  const weightedWorkouts = strengthWorkouts.filter(workout => workout.weight_mode !== 'bodyweight');
+  const bodyweightWorkouts = strengthWorkouts.filter(workout => workout.weight_mode === 'bodyweight');
 
   const bodyweightAt = date =>
     Number([...sortedMetrics].reverse().find(metric => metric.date <= date)?.weight || sortedMetrics.at(-1)?.weight || 0);
@@ -60,6 +68,7 @@ export default function Progress({ workouts, metrics }) {
   const weightedVolume = getWorkoutVolume(weightedWorkouts, bodyweightAt);
   const bodyweightVolume = getWorkoutVolume(bodyweightWorkouts, bodyweightAt);
   const totalVolume = weightedVolume + bodyweightVolume;
+  const cardioMinutes = cardioWorkouts.reduce((sum, workout) => sum + Number(workout.duration_minutes || 0), 0);
   const volumeByDate = buildVolumeByDate(sortedWorkouts, bodyweightAt);
   const exerciseSeries = buildExerciseSeries(sortedWorkouts, bodyweightAt);
 
@@ -70,13 +79,30 @@ export default function Progress({ workouts, metrics }) {
         <span>登録したデータから、成長を振り返ります。</span>
       </header>
 
+      <section className={styles.placeTabs} aria-label="場所で絞り込み">
+        {[
+          ['all', 'すべて'],
+          ['home', '自宅'],
+          ['gym', 'ジム'],
+        ].map(([value, label]) => (
+          <button
+            className={place === value ? styles.activeTab : ''}
+            key={value}
+            onClick={() => setPlace(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </section>
+
       <div className={styles.metrics}>
-        <MetricCard title="総記録" volume={totalVolume} count={workouts.length} />
+        <MetricCard title="筋トレ総記録" volume={totalVolume} count={strengthWorkouts.length} />
         <MetricCard title="自重を除く総重量" volume={weightedVolume} count={weightedWorkouts.length} />
         <MetricCard title="自重の総重量" volume={bodyweightVolume} count={bodyweightWorkouts.length} />
+        <CardioCard minutes={cardioMinutes} count={cardioWorkouts.length} />
       </div>
 
-      {workouts.length === 0 && metrics.length === 0 ? (
+      {targetWorkouts.length === 0 && metrics.length === 0 ? (
         <div className={styles.empty}>
           <b>振り返るデータがまだありません</b>
           <p>ワークアウトや体重を登録すると、ここに進捗が表示されます。</p>
@@ -140,6 +166,30 @@ export default function Progress({ workouts, metrics }) {
         </div>
       )}
     </section>
+  );
+}
+
+function CardioCard({ minutes, count }) {
+  return (
+    <article>
+      <p>有酸素</p>
+      <div className="metric-pair">
+        <div>
+          <span>合計時間</span>
+          <strong>
+            {minutes.toLocaleString()}
+            <small> 分</small>
+          </strong>
+        </div>
+        <div>
+          <span>記録回数</span>
+          <strong>
+            {count.toLocaleString()}
+            <small> 回</small>
+          </strong>
+        </div>
+      </div>
+    </article>
   );
 }
 
