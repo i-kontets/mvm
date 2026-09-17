@@ -81,6 +81,35 @@
   font-size: 10px;
 }
 
+.metricPair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.metricPair > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.metricPair span {
+  color: #89938c;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.metricPair strong {
+  font-size: 24px;
+  white-space: nowrap;
+}
+
+.metricPair small {
+  color: #89938c;
+  font-size: 10px;
+}
+
 .empty {
   padding: 35px 20px;
   text-align: center;

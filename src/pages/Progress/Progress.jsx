@@ -173,7 +173,7 @@ function CardioCard({ minutes, count }) {
   return (
     <article>
       <p>有酸素</p>
-      <div className="metric-pair">
+      <div className={styles.metricPair}>
         <div>
           <span>合計時間</span>
           <strong>
@@ -197,7 +197,7 @@ function MetricCard({ title, volume, count }) {
   return (
     <article>
       <p>{title}</p>
-      <div className="metric-pair">
+      <div className={styles.metricPair}>
         <div>
           <span>総重量</span>
           <strong>

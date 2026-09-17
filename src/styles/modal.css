@@ -1,0 +1,230 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  background: #12201580;
+}
+
+.modal {
+  position: relative;
+  display: grid;
+  gap: 15px;
+  width: min(420px, calc(100% - 32px));
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  padding: 29px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 70px #0d160d66;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal *,
+.modal label,
+.input-grid {
+  min-width: 0;
+}
+
+.modal h2 {
+  margin: 0 0 3px;
+  font-size: 21px;
+  letter-spacing: -1px;
+}
+
+.modal label,
+.video-field {
+  display: grid;
+  gap: 6px;
+  color: #546157;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.modal input,
+.modal select {
+  width: 100%;
+  height: 43px;
+  padding: 0 11px;
+  border: 1px solid #dde3dc;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--lime);
+  color: #17300d;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background: #b3ff7e;
+  transform: translateY(-1px);
+}
+
+.modal .primary-button {
+  margin-top: 5px;
+}
+
+.primary-button span {
+  margin-left: 10px;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 27px;
+  height: 27px;
+  border: 0;
+  border-radius: 50%;
+  background: #f0f3ef;
+  color: #576159;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.video-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 150px;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid #e7e9e4;
+  border-radius: 8px;
+  background: #fbfdf9;
+}
+
+.video-option {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 7px !important;
+  border: 1px solid #e2e8df;
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.video-option input {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.video-option span {
+  order: 1;
+  display: block;
+  min-height: 28px;
+  overflow: hidden;
+  color: #536057;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.video-option img {
+  order: 2;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  object-fit: cover;
+  filter: saturate(0.72);
+  transition: 0.15s ease;
+}
+
+.video-option:has(input:checked) {
+  border-color: #79c65b;
+  background: #effae9;
+  box-shadow: 0 0 0 2px #b9e99f;
+}
+
+.video-option:has(input:checked) img {
+  filter: saturate(1.15);
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.detail-actions > button:first-child {
+  padding: 0 13px;
+  border: 1px solid #f0cfcf;
+  border-radius: 8px;
+  background: #fff;
+  color: #b64c4c;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 620px) {
+  .modal-backdrop {
+    align-items: start;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    padding: 24px 18px;
+  }
+
+  .modal h2 {
+    font-size: 19px;
+  }
+
+  .modal label,
+  .video-field {
+    gap: 5px;
+  }
+
+  .modal input,
+  .modal select {
+    height: 40px;
+    /* iPhone Safariの入力時自動ズームを防ぐ。 */
+    font-size: 16px;
+  }
+
+  .modal .primary-button {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 380px) {
+  .video-options {
+    grid-template-columns: 1fr;
+  }
+}

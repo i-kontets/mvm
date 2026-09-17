@@ -1,15 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
-import './dashboard.css';
-import './plans.css';
-import './mobile.css';
-import './record-first.css';
-import './app.css';
-import './modal-fix.css';
-import './video-nav.css';
-import './schedule-detail.css';
-import './workout-card.css';
-import './progress-layout.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/modal.css';
 
 createRoot(document.getElementById('app')).render(<StrictMode><App /></StrictMode>);
