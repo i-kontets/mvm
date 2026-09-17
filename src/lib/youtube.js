@@ -1,3 +1,4 @@
+// YouTube URLから動画IDだけを取り出し、公式サムネイルURLを組み立てる。
 export const youtubeThumbnail = url => {
   try {
     const parsed = new URL(url);

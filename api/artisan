@@ -6,10 +6,11 @@ use Symfony\Component\Console\Input\ArgvInput;
 
 define('LARAVEL_START', microtime(true));
 
-// Register the Composer autoloader...
+//Laravelのクラスやライブラリが必要になったら、対応するファイルを探して読み込んでくれるやつ
+// Composerのオートローダーを登録
 require __DIR__.'/vendor/autoload.php';
 
-// Bootstrap Laravel and handle the command...
+// Laravelを起動してコマンドを処理
 /** @var Application $app */
 $app = require_once __DIR__.'/bootstrap/app.php';
 

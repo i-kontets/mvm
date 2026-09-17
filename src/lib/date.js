@@ -1,3 +1,4 @@
+// UTC変換による日付ずれを避けるため、画面表示用はローカル日付で整形する。
 export const toLocalDate = date =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 

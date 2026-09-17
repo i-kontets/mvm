@@ -1,1 +1,70 @@
-.modal-backdrop{overflow-y:auto;align-items:center}.modal{max-height:calc(100dvh - 32px);overflow-y:auto}.modal label{min-width:0}.modal input,.modal select{width:100%;min-width:0}.input-grid{min-width:0}@media(max-width:620px){.modal-backdrop{align-items:start;padding:16px}.modal{width:100%;max-height:calc(100dvh - 32px);padding:24px 18px}.modal h2{font-size:19px}.modal label{gap:5px}.modal input,.modal select{height:40px}.modal .primary-button{min-height:40px}}
+.modal-backdrop {
+  align-items: center;
+  /* 横方向だけを抑え、長いフォームは縦にスクロールできるようにする。 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.modal {
+  width: min(420px, calc(100% - 32px));
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* iOS Safariでもモーダル内を自然に縦スクロールさせる。 */
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal *,
+.modal label,
+.input-grid {
+  min-width: 0;
+}
+
+.modal input,
+.modal select {
+  width: 100%;
+}
+
+.video-field {
+  display: grid;
+  gap: 6px;
+  color: #546157;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .modal-backdrop {
+    align-items: start;
+    padding: 16px;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 32px);
+    padding: 24px 18px;
+  }
+
+  .modal h2 {
+    font-size: 19px;
+  }
+
+  .modal label,
+  .video-field {
+    gap: 5px;
+  }
+
+  .modal input,
+  .modal select {
+    height: 40px;
+    /* 16px未満だとiPhone Safariが入力時に自動ズームするため。 */
+    font-size: 16px;
+  }
+
+  .modal .primary-button {
+    min-height: 40px;
+  }
+}

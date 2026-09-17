@@ -2,22 +2,17 @@ import { useMemo, useState } from 'react';
 import styles from './Workouts.module.css';
 
 export default function Workouts({ workouts, videos, onAdd, onEdit }) {
-  const [category, setCategory] = useState('all');
   const [place, setPlace] = useState('all');
   const [keyword, setKeyword] = useState('');
 
-  const categories = useMemo(
-    () => [...new Set(workouts.map(workout => workout.category).filter(Boolean))],
-    [workouts],
-  );
   const videoById = useMemo(
     () => new Map(videos.map(video => [Number(video.id), video])),
     [videos],
   );
   const visibleWorkouts = workouts.filter(workout => {
-    const searchable = `${workout.name} ${workout.exercise} ${(workout.tags || []).join(' ')}`;
+    const searchable = `${workout.exercise} ${(workout.tags || []).join(' ')}`;
+
     return (
-      (category === 'all' || workout.category === category) &&
       (place === 'all' || workout.training_place === place) &&
       searchable.toLowerCase().includes(keyword.toLowerCase())
     );
@@ -27,7 +22,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
     <section className={styles.page}>
       <header>
         <h1>記録</h1>
-        <span>過去のメニューを、カテゴリ・ラベルで探せます。</span>
+        <span>種目とラベルで、過去の記録を探せます。</span>
       </header>
 
       <button className={styles.primary} onClick={onAdd}>＋ 新しい記録</button>
@@ -35,7 +30,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
       {workouts.length === 0 ? (
         <div className={styles.empty}>
           <b>まだ記録はありません</b>
-          <p>メニュー名、種目、カテゴリ、ラベルを登録すると、過去メニューとしてここに残ります。</p>
+          <p>種目とラベルを登録すると、過去の記録としてここに残ります。</p>
           <button onClick={onAdd}>最初の記録を追加 →</button>
         </div>
       ) : (
@@ -60,12 +55,8 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
             <input
               value={keyword}
               onChange={event => setKeyword(event.target.value)}
-              placeholder="メニュー・種目・ラベルを検索"
+              placeholder="種目・ラベルを検索"
             />
-            <select value={category} onChange={event => setCategory(event.target.value)}>
-              <option value="all">すべてのカテゴリ</option>
-              {categories.map(item => <option value={item} key={item}>{item}</option>)}
-            </select>
           </section>
           <p className={styles.count}>{visibleWorkouts.length} 件の記録</p>
           <div className={styles.list}>
@@ -91,11 +82,9 @@ function WorkoutCard({ workout, videoById, onEdit }) {
         <time>{workout.date}</time>
         <div className={styles.badges}>
           <span className={styles.place}>{placeLabel(workout.training_place)}</span>
-          {workout.category && <span className={styles.category}>{workout.category}</span>}
         </div>
       </div>
-      <h2>{workout.name}</h2>
-      <p>{workout.exercise}</p>
+      <h2>{workout.exercise}</h2>
       <div className={styles.cardBottom}>
         <strong>
           {workout.record_type === 'cardio' ? (

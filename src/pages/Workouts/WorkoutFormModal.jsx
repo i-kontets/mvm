@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { todayString } from '../../lib/date.js';
 
+const gymExercises = [
+  'シーテッドレッグプレス',
+  'チェストプレス',
+  'ショルダープレス',
+  '自転車エルゴメーター／エアロバイク',
+];
+// ジムでは機器を選択式にし、表記ゆれのない記録・集計を維持する。
+const cardioExercise = '自転車エルゴメーター／エアロバイク';
+
 export default function WorkoutFormModal({
   editingWorkout,
   videos,
@@ -8,20 +17,51 @@ export default function WorkoutFormModal({
   onClose,
   onSubmit,
 }) {
+  const [trainingPlace, setTrainingPlace] = useState(editingWorkout?.training_place || 'gym');
+  const [exercise, setExercise] = useState(editingWorkout?.exercise || gymExercises[0]);
   const [isBodyweight, setIsBodyweight] = useState(editingWorkout?.weight_mode === 'bodyweight');
   const [recordType, setRecordType] = useState(editingWorkout?.record_type || 'strength');
 
+  const isCardioExercise = exercise === cardioExercise;
+  const isCardio = isCardioExercise || recordType === 'cardio';
+
   useEffect(() => {
+    const place = editingWorkout?.training_place || 'gym';
+    const nextExercise = editingWorkout?.exercise || (place === 'gym' ? gymExercises[0] : '');
+
+    setTrainingPlace(place);
+    setExercise(nextExercise);
     setIsBodyweight(editingWorkout?.weight_mode === 'bodyweight');
     setRecordType(editingWorkout?.record_type || 'strength');
   }, [editingWorkout]);
 
-  const isCardio = recordType === 'cardio';
+  const handlePlaceChange = event => {
+    const nextPlace = event.target.value;
+    setTrainingPlace(nextPlace);
+
+    if (nextPlace === 'home') {
+      // ジムの選択値を自宅の手入力欄へ持ち越さない。
+      setExercise('');
+      return;
+    }
+
+    // 自宅で入力した種目はジムの選択肢にないため、初期値へ戻す。
+    if (!gymExercises.includes(exercise)) {
+      setExercise(gymExercises[0]);
+      setRecordType('strength');
+    }
+  };
 
   const handleExerciseChange = event => {
-    if (event.target.value.includes('エアロバイク')) {
+    const nextExercise = event.target.value;
+    setExercise(nextExercise);
+
+    if (nextExercise === cardioExercise) {
+      // エアロバイクは重量・回数ではなく、時間で記録する。
       setRecordType('cardio');
       setIsBodyweight(false);
+    } else if (recordType === 'cardio') {
+      setRecordType('strength');
     }
   };
 
@@ -35,7 +75,7 @@ export default function WorkoutFormModal({
 
         <label>
           場所
-          <select name="training_place" defaultValue={editingWorkout?.training_place || 'gym'}>
+          <select name="training_place" value={trainingPlace} onChange={handlePlaceChange}>
             <option value="gym">ジム</option>
             <option value="home">自宅</option>
           </select>
@@ -43,9 +83,11 @@ export default function WorkoutFormModal({
 
         <label>
           記録タイプ
+          {isCardioExercise && <input type="hidden" name="record_type" value="cardio" />}
           <select
-            name="record_type"
-            value={recordType}
+            name={isCardioExercise ? undefined : 'record_type'}
+            value={isCardio ? 'cardio' : 'strength'}
+            disabled={isCardioExercise}
             onChange={event => setRecordType(event.target.value)}
           >
             <option value="strength">筋トレ</option>
@@ -54,37 +96,22 @@ export default function WorkoutFormModal({
         </label>
 
         <label>
-          ワークアウト名
-          <input
-            name="name"
-            list="workout-names"
-            defaultValue={editingWorkout?.name || ''}
-            placeholder="例: Push Day"
-            required
-            autoFocus
-          />
-        </label>
-
-        <label>
           種目
-          <input
-            name="exercise"
-            list="exercise-names"
-            defaultValue={editingWorkout?.exercise || ''}
-            onChange={handleExerciseChange}
-            placeholder="例: ベンチプレス"
-            required
-          />
-        </label>
-
-        <label>
-          カテゴリ（任意）
-          <input
-            name="category"
-            list="category-names"
-            defaultValue={editingWorkout?.category || ''}
-            placeholder="例: Push / Pull / Legs"
-          />
+          {trainingPlace === 'gym' ? (
+            <select name="exercise" value={exercise} onChange={handleExerciseChange}>
+              {gymExercises.map(item => <option value={item} key={item}>{item}</option>)}
+            </select>
+          ) : (
+            <input
+              name="exercise"
+              list="exercise-names"
+              value={exercise}
+              onChange={handleExerciseChange}
+              placeholder="例: ベンチプレス"
+              required
+              autoFocus
+            />
+          )}
         </label>
 
         <label>
@@ -93,7 +120,7 @@ export default function WorkoutFormModal({
             name="tags"
             list="tag-names"
             defaultValue={(editingWorkout?.tags || []).join(', ')}
-            placeholder="例: 胸, 三頭, フリーウェイト（カンマ区切り）"
+            placeholder="例: 胸, 三頭（カンマ区切り）"
           />
         </label>
 
@@ -150,8 +177,8 @@ export default function WorkoutFormModal({
           <input name="date" type="date" defaultValue={editingWorkout?.date || todayString()} required />
         </label>
 
-        <label>
-          この日に使った参考動画（任意）
+        <div className="video-field">
+          <span>この日に使った参考動画（任意）</span>
           <div className="video-options">
             {videos.length ? (
               videos.map(video => (
@@ -170,7 +197,7 @@ export default function WorkoutFormModal({
               <small>先に「動画」画面から動画を登録してください。</small>
             )}
           </div>
-        </label>
+        </div>
 
         <button className="primary-button">
           {editingWorkout ? '変更を保存する' : '登録する'} <span>→</span>
@@ -183,14 +210,8 @@ export default function WorkoutFormModal({
 function WorkoutSuggestions({ suggestions }) {
   return (
     <>
-      <datalist id="workout-names">
-        {suggestions.names.map(item => <option value={item} key={item} />)}
-      </datalist>
       <datalist id="exercise-names">
         {suggestions.exercises.map(item => <option value={item} key={item} />)}
-      </datalist>
-      <datalist id="category-names">
-        {suggestions.categories.map(item => <option value={item} key={item} />)}
       </datalist>
       <datalist id="tag-names">
         {suggestions.tags.map(item => <option value={item} key={item} />)}

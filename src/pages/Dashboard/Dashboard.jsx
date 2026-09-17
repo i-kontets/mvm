@@ -84,9 +84,9 @@ export default function Dashboard({
                 <div>
                   <b>
                     <em>{placeLabel(workout.training_place)}</em>
-                    {workout.name}
+                    {workout.exercise}
                   </b>
-                  <span>{workout.exercise} · {workoutSummary(workout)}</span>
+                  <span>{workoutSummary(workout)}</span>
                 </div>
                 <time>{workout.date}</time>
               </div>

@@ -9,6 +9,7 @@ class MvmController extends Controller
 {
     public function workouts()
     {
+        // 一覧画面で種目とセット情報を、一発でまとめて返す
         return DB::table('workouts')
             ->join('exercises', 'workouts.exercise_id', '=', 'exercises.id')
             ->leftJoin('workout_sets', 'workout_sets.workout_id', '=', 'workouts.id')
@@ -74,7 +75,7 @@ class MvmController extends Controller
         ]);
 
         return $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['nullable', 'string', 'max:100'],
             'exercise' => ['required', 'string', 'max:255'],
             'training_place' => ['required', 'in:home,gym'],
             'record_type' => ['required', 'in:strength,cardio'],
@@ -96,13 +97,14 @@ class MvmController extends Controller
         $weightMode = $recordType === 'cardio'
             ? 'weighted'
             : ($data['weight_mode'] ?? 'weighted');
+        // 初めて入力された自宅種目は種目マスタにも自動登録し、次回以降の候補にする。
         $exerciseId = DB::table('exercises')->where('name', $data['exercise'])->value('id')
             ?? DB::table('exercises')->insertGetId([
                 'name' => $data['exercise'],
                 'created_at' => now(),
             ]);
         $payload = [
-            'name' => $data['name'],
+            'name' => $data['name'] ?? $data['exercise'],
             'exercise_id' => $exerciseId,
             'date' => $data['date'],
             'category' => $data['category'] ?? null,
@@ -132,6 +134,7 @@ class MvmController extends Controller
             ]);
         }
 
+        // 編集時は一度ひも付けを作り直し、チェック解除も正しく反映する。
         foreach ($data['video_ids'] ?? [] as $videoId) {
             DB::table('workout_videos')->insert([
                 'workout_id' => $workoutId,

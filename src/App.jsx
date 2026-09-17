@@ -56,6 +56,7 @@ export default function App() {
   };
 
   const loadData = async () => {
+    // 遅れて届いた古い通信結果で、画面の最新状態を上書きしないための番号。
     const version = ++loadVersion.current;
     try {
       const [savedWorkouts, savedMetrics, savedPlans, savedEvents, savedVideos] = await Promise.all([
@@ -86,6 +87,7 @@ export default function App() {
   const saveWorkout = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const exercise = String(form.get('exercise') || '').trim();
     const recordType = form.get('record_type') || 'strength';
     const weightMode = form.get('weight_mode') || 'weighted';
     const tags = String(form.get('tags') || '')
@@ -93,9 +95,10 @@ export default function App() {
       .map(tag => tag.trim())
       .filter(Boolean);
     const workout = {
-      name: form.get('name'),
-      exercise: form.get('exercise'),
-      category: String(form.get('category') || '').trim(),
+      // 現行UIでは種目名を記録の表示名としても利用する。
+      name: exercise,
+      exercise,
+      category: '',
       tags,
       training_place: form.get('training_place') || 'gym',
       record_type: recordType,
@@ -114,7 +117,7 @@ export default function App() {
         await api.post('/workouts', { ...workout, id: crypto.randomUUID() });
       }
       await loadData();
-      addLog(`ワークアウトを${editingWorkout ? '更新' : '登録'}: ${placeLabel(workout.training_place)} ${workout.name}（${workout.exercise}）`);
+      addLog(`ワークアウトを${editingWorkout ? '更新' : '登録'}: ${placeLabel(workout.training_place)} ${workout.exercise}`);
       closeModal();
     } catch (error) {
       addLog(error.message);
@@ -257,9 +260,7 @@ export default function App() {
   };
 
   const suggestions = {
-    names: [...new Set(workouts.map(item => item.name))],
     exercises: [...new Set([...gymExercises, ...workouts.map(item => item.exercise)])],
-    categories: [...new Set(workouts.map(item => item.category).filter(Boolean))],
     tags: [...new Set(workouts.flatMap(item => item.tags || []))],
   };
   const dashboardLogs = [
@@ -364,7 +365,7 @@ function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos 
     ...workouts.map(workout => ({
       id: `saved-workout-${workout.id}`,
       time: workout.date,
-      message: `記録: ${placeLabel(workout.training_place)} ${workout.name}（${workout.exercise}）`,
+      message: `記録: ${placeLabel(workout.training_place)} ${workout.exercise}`,
       date: workout.date,
     })),
     ...metrics.map(metric => ({
