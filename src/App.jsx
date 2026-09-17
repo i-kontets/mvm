@@ -47,6 +47,33 @@ export default function App() {
   const [editingVideo, setEditingVideo] = useState(null);
   const [editingWorkout, setEditingWorkout] = useState(null);
   const loadVersion = useRef(0);
+  const isOverlayOpen = Boolean(modal || selectedSchedule);
+
+  useEffect(() => {
+    if (!isOverlayOpen) return undefined;
+
+    // iPhone Safariでも背面のページ位置を固定する。閉じる時に元の位置へ戻す。
+    const scrollY = window.scrollY;
+    const bodyStyle = document.body.style;
+    const previousStyle = {
+      overflow: bodyStyle.overflow,
+      position: bodyStyle.position,
+      top: bodyStyle.top,
+      width: bodyStyle.width,
+    };
+
+    Object.assign(bodyStyle, {
+      overflow: 'hidden',
+      position: 'fixed',
+      top: `-${scrollY}px`,
+      width: '100%',
+    });
+
+    return () => {
+      Object.assign(bodyStyle, previousStyle);
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOverlayOpen]);
 
   const addLog = message => {
     const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
