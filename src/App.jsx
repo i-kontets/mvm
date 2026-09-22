@@ -16,8 +16,21 @@ import {
 import { api } from './lib/api.js';
 import { thisMonday, toLocalDate } from './lib/date.js';
 import { youtubeThumbnail } from './lib/youtube.js';
+import { createClientId } from './lib/id.js';
+import HomeIcon from './assets/navigation/home.svg?react';
+import WorkoutsIcon from './assets/navigation/workouts.svg?react';
+import ScheduleIcon from './assets/navigation/schedule.svg?react';
+import VideosIcon from './assets/navigation/videos.svg?react';
+import ProgressIcon from './assets/navigation/progress.svg?react';
 
-const navItems = [['▦', 'ホーム'], ['⌁', '記録'], ['□', '予定'], ['▷', '動画'], ['↗', '進捗']];
+// SVGはSVGRでReactコンポーネントとして読み込む。色とサイズはCSS側で統一する。
+const navItems = [
+  { Icon: HomeIcon, name: 'ホーム' },
+  { Icon: WorkoutsIcon, name: '記録' },
+  { Icon: ScheduleIcon, name: '予定' },
+  { Icon: VideosIcon, name: '動画' },
+  { Icon: ProgressIcon, name: '進捗' },
+];
 const pageTitles = { ホーム: 'ホーム', 記録: '記録', 予定: '予定', 動画: '参考動画', 進捗: '進捗' };
 const sampleMonday = thisMonday();
 const sampleThursday = new Date(sampleMonday);
@@ -46,6 +59,7 @@ export default function App() {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [editingVideo, setEditingVideo] = useState(null);
   const [editingWorkout, setEditingWorkout] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const loadVersion = useRef(0);
   const isOverlayOpen = Boolean(modal || selectedSchedule);
 
@@ -75,9 +89,47 @@ export default function App() {
     };
   }, [isOverlayOpen]);
 
+  useEffect(() => {
+    if (!isOverlayOpen) return undefined;
+
+    let touchStartY = null;
+    const blurActiveTextInput = () => {
+      const activeElement = document.activeElement;
+
+      if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+        activeElement.blur();
+      }
+    };
+
+    const handleTouchStart = event => {
+      touchStartY = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = event => {
+      const currentY = event.touches[0]?.clientY;
+      if (touchStartY === null || currentY === undefined) return;
+
+      // タップでは閉じず、スクロール意図がある程度見えた時だけキーボードを閉じる。
+      if (Math.abs(currentY - touchStartY) > 8) {
+        blurActiveTextInput();
+        touchStartY = null;
+      }
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('wheel', blurActiveTextInput, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('wheel', blurActiveTextInput);
+    };
+  }, [isOverlayOpen]);
+
   const addLog = message => {
     const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    const entry = { id: crypto.randomUUID(), time, message };
+    const entry = { id: createClientId(), time, message };
     setLogs(current => [entry, ...current]);
     console.info('[MVM Activity Log]', entry);
   };
@@ -104,6 +156,9 @@ export default function App() {
       if (version === loadVersion.current) {
         addLog('APIに接続できませんでした。DockerのAPIコンテナを確認してください。');
       }
+    } finally {
+      // 初回表示では空配列を「データなし」と見せず、通信完了を待ってから画面を描画する。
+      if (version === loadVersion.current) setIsInitialLoading(false);
     }
   };
 
@@ -141,7 +196,7 @@ export default function App() {
       if (editingWorkout) {
         await api.put(`/workouts/${editingWorkout.id}`, workout);
       } else {
-        await api.post('/workouts', { ...workout, id: crypto.randomUUID() });
+        await api.post('/workouts', { ...workout, id: createClientId() });
       }
       await loadData();
       addLog(`ワークアウトを${editingWorkout ? '更新' : '登録'}: ${placeLabel(workout.training_place)} ${workout.exercise}`);
@@ -151,10 +206,25 @@ export default function App() {
     }
   };
 
+  const deleteWorkout = async workout => {
+    const label = `${placeLabel(workout.training_place)}・${workout.exercise}`;
+
+    // 取り消せない操作なので、APIを呼ぶ前に利用者へ対象を明示する。
+    if (!window.confirm(`「${label}」の記録を削除しますか？`)) return;
+
+    try {
+      await api.delete(`/workouts/${workout.id}`);
+      await loadData();
+      addLog(`ワークアウトを削除: ${label}`);
+    } catch (error) {
+      addLog(error.message);
+    }
+  };
+
   const savePlan = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const plan = { id: crypto.randomUUID(), day: Number(form.get('day')), title: form.get('title') };
+    const plan = { id: createClientId(), day: Number(form.get('day')), title: form.get('title') };
 
     try {
       await api.post('/training-plans', plan);
@@ -169,7 +239,7 @@ export default function App() {
   const saveMetric = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const metric = { id: crypto.randomUUID(), weight: form.get('weight'), date: form.get('date') };
+    const metric = { id: createClientId(), weight: form.get('weight'), date: form.get('date') };
 
     try {
       await api.post('/body-metrics', metric);
@@ -185,7 +255,7 @@ export default function App() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const calendarEvent = {
-      id: crypto.randomUUID(),
+      id: createClientId(),
       title: form.get('title'),
       start: form.get('start'),
       end: inclusiveEndToCalendarEnd(form.get('end')),
@@ -205,7 +275,7 @@ export default function App() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const url = form.get('url').trim();
-    const video = { id: crypto.randomUUID(), title: form.get('title'), category: form.get('category'), url, thumbnail: youtubeThumbnail(url) };
+    const video = { id: createClientId(), title: form.get('title'), category: form.get('category'), url, thumbnail: youtubeThumbnail(url) };
 
     try {
       if (editingVideo) {
@@ -313,6 +383,7 @@ export default function App() {
         videos={videos}
         onAdd={() => open('workout')}
         onEdit={workout => open('workout', workout)}
+        onDelete={deleteWorkout}
       />
     ),
     予定: (
@@ -343,14 +414,16 @@ export default function App() {
           <span>MVM</span>
         </a>
         <nav>
-          {navItems.map(([icon, name]) => (
+          {navItems.map(({ Icon, name }) => (
             <button
               key={name}
               className={`nav-link ${activePage === name ? 'active' : ''}`}
               onClick={() => setActivePage(name)}
             >
-              <b className="nav-glyph">{icon}</b>
-              <span>{name}</span>
+              <span className="nav-icon-slot" aria-hidden="true">
+                <Icon className="nav-icon" focusable="false" />
+              </span>
+              <span className="nav-label">{name}</span>
             </button>
           ))}
         </nav>
@@ -358,7 +431,9 @@ export default function App() {
 
       <main>
         <div className="desktop-page-label">{pageTitles[activePage]}</div>
-        {pages[activePage]}
+        {isInitialLoading ? (
+          <div className="page-loading" role="status">データを読み込んでいます…</div>
+        ) : pages[activePage]}
       </main>
 
       {modal === 'workout' && (

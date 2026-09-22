@@ -19,6 +19,7 @@
     "react-dom": "latest"
   },
   "devDependencies": {
-    "vite": "latest"
+    "vite": "latest",
+    "vite-plugin-svgr": "^5.2.0"
   }
 }

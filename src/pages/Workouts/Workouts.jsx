@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import styles from './Workouts.module.css';
 
-export default function Workouts({ workouts, videos, onAdd, onEdit }) {
+export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) {
   const [place, setPlace] = useState('all');
   const [keyword, setKeyword] = useState('');
 
@@ -61,7 +61,13 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
           <p className={styles.count}>{visibleWorkouts.length} 件の記録</p>
           <div className={styles.list}>
             {visibleWorkouts.map(workout => (
-              <WorkoutCard key={workout.id} workout={workout} videoById={videoById} onEdit={onEdit} />
+              <WorkoutCard
+                key={workout.id}
+                workout={workout}
+                videoById={videoById}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))}
           </div>
           {visibleWorkouts.length === 0 && <p className={styles.noMatch}>条件に一致する記録はありません。</p>}
@@ -71,7 +77,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit }) {
   );
 }
 
-function WorkoutCard({ workout, videoById, onEdit }) {
+function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
   const linkedVideos = (workout.video_ids || [])
     .map(id => videoById.get(Number(id)))
     .filter(Boolean);
@@ -109,7 +115,10 @@ function WorkoutCard({ workout, videoById, onEdit }) {
           <div>{linkedVideos.map(video => <img key={video.id} src={video.thumbnail} alt={video.title} />)}</div>
         </div>
       )}
-      <button className={styles.edit} onClick={() => onEdit(workout)}>編集</button>
+      <div className={styles.actions}>
+        <button className={styles.edit} onClick={() => onEdit(workout)}>編集</button>
+        <button className={styles.delete} onClick={() => onDelete(workout)}>削除</button>
+      </div>
     </article>
   );
 }

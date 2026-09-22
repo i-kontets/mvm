@@ -2,6 +2,7 @@ import {
   BarElement,
   CategoryScale,
   Chart as ChartJS,
+  Filler,
   Legend,
   LinearScale,
   LineElement,
@@ -15,6 +16,7 @@ import styles from './Progress.module.css';
 ChartJS.register(
   BarElement,
   CategoryScale,
+  Filler,
   Legend,
   LinearScale,
   LineElement,

@@ -61,8 +61,15 @@ class MvmController extends Controller
 
     public function deleteWorkout(int $id)
     {
-        DB::table('workout_videos')->where('workout_id', $id)->delete();
-        DB::table('workouts')->where('id', $id)->delete();
+        abort_unless(DB::table('workouts')->where('id', $id)->exists(), 404);
+
+        // 記録本体だけでなく、セットと紐づく参考動画も同じ単位で削除する。
+        // 途中失敗で関連データだけ残らないよう、1つのトランザクションにまとめる。
+        DB::transaction(function () use ($id) {
+            DB::table('workout_sets')->where('workout_id', $id)->delete();
+            DB::table('workout_videos')->where('workout_id', $id)->delete();
+            DB::table('workouts')->where('id', $id)->delete();
+        });
 
         return response()->noContent();
     }

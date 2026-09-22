@@ -69,11 +69,19 @@
   color: #264c18;
 }
 
-.nav-glyph {
+.nav-icon-slot {
+  display: grid;
+  flex: 0 0 20px;
   width: 20px;
-  font-size: 20px;
-  font-weight: 400;
-  text-align: center;
+  height: 20px;
+  place-items: center;
+}
+
+.nav-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: currentColor;
 }
 
 main {
@@ -91,6 +99,17 @@ main {
   letter-spacing: 0.1em;
 }
 
+.page-loading {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #fbfdf9;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 @media (max-width: 900px) {
   .sidebar {
     width: 70px;
@@ -102,7 +121,7 @@ main {
   }
 
   .brand > span:last-child,
-  .nav-link span {
+  .nav-label {
     display: none;
   }
 
@@ -159,13 +178,14 @@ main {
     text-align: center;
   }
 
-  .nav-link span {
+  .nav-label {
     display: block;
   }
 
-  .nav-glyph {
+  .nav-icon-slot {
     height: 19px;
-    font-size: 15px;
+    flex-basis: 19px;
+    width: 19px;
   }
 
   main {

@@ -223,8 +223,14 @@
   object-fit: cover;
 }
 
-.edit {
-  justify-self: end;
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.edit,
+.delete {
   min-width: 72px;
   border: 1px solid #dfe6dc;
   border-radius: 8px;
@@ -238,6 +244,16 @@
 .edit:hover {
   background: #effae9;
   color: #2f661f;
+}
+
+.delete {
+  border-color: #f1d6d6;
+  color: #a54d4d;
+}
+
+.delete:hover {
+  background: #fff4f4;
+  color: #8f3333;
 }
 
 .noMatch {
