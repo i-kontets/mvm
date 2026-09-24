@@ -23,6 +23,7 @@ import ScheduleIcon from './assets/navigation/schedule.svg?react';
 import VideosIcon from './assets/navigation/videos.svg?react';
 import ProgressIcon from './assets/navigation/progress.svg?react';
 
+// --- アプリ全体で共有する表示定義 ---
 // SVGはSVGRでReactコンポーネントとして読み込む。色とサイズはCSS側で統一する。
 const navItems = [
   { Icon: HomeIcon, name: 'ホーム' },
@@ -46,6 +47,8 @@ const gymExercises = [
 ];
 
 export default function App() {
+  // --- 画面状態 ---
+  // APIから取得したデータと、現在開いている画面・モーダルをここで一元管理する。
   const [activePage, setActivePage] = useState('ホーム');
   const [modal, setModal] = useState(null);
   const [workouts, setWorkouts] = useState([]);
@@ -63,6 +66,7 @@ export default function App() {
   const loadVersion = useRef(0);
   const isOverlayOpen = Boolean(modal || selectedSchedule);
 
+  // モーダル表示中は、スマホを含めて背面のページをスクロールさせない。
   useEffect(() => {
     if (!isOverlayOpen) return undefined;
 
@@ -89,6 +93,7 @@ export default function App() {
     };
   }, [isOverlayOpen]);
 
+  // 入力中にモーダルをスクロールした時だけキーボードを閉じ、フォーム移動を楽にする。
   useEffect(() => {
     if (!isOverlayOpen) return undefined;
 
@@ -127,6 +132,7 @@ export default function App() {
     };
   }, [isOverlayOpen]);
 
+  // 操作ログは画面表示用とブラウザの調査用コンソールへ同時に残す。
   const addLog = message => {
     const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
     const entry = { id: createClientId(), time, message };
@@ -134,6 +140,7 @@ export default function App() {
     console.info('[MVM Activity Log]', entry);
   };
 
+  // --- APIからの初期・再取得処理 ---
   const loadData = async () => {
     // 遅れて届いた古い通信結果で、画面の最新状態を上書きしないための番号。
     const version = ++loadVersion.current;
@@ -166,6 +173,8 @@ export default function App() {
     loadData();
   }, []);
 
+  // --- フォーム送信処理 ---
+  // 各モーダルから送られたFormDataを、Laravel APIが受け取る形に変換して保存する。
   const saveWorkout = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -206,6 +215,7 @@ export default function App() {
     }
   };
 
+  // 削除前に対象を確認し、成功時は一覧を再取得して表示を同期する。
   const deleteWorkout = async workout => {
     const label = `${placeLabel(workout.training_place)}・${workout.exercise}`;
 
@@ -221,6 +231,7 @@ export default function App() {
     }
   };
 
+  // 曜日固定のルーティンを登録する。
   const savePlan = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -236,6 +247,7 @@ export default function App() {
     }
   };
 
+  // 体重の時系列データを登録する。
   const saveMetric = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -251,6 +263,7 @@ export default function App() {
     }
   };
 
+  // 開始日・終了日を持つ、単発または期間予定を登録する。
   const saveEvent = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -271,6 +284,7 @@ export default function App() {
     }
   };
 
+  // YouTube URLから作ったサムネイルURLも一緒に保存する。
   const saveVideo = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -291,6 +305,7 @@ export default function App() {
     }
   };
 
+  // --- 既存の予定の編集・削除 ---
   const updatePlan = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -325,6 +340,7 @@ export default function App() {
     }
   };
 
+  // 選択した予定の種類に応じて、正しいAPIエンドポイントを選ぶ。
   const deleteSchedule = async () => {
     if (!window.confirm(`「${selectedSchedule.item.title}」を削除しますか？`)) return;
 
@@ -342,6 +358,8 @@ export default function App() {
     }
   };
 
+  // --- モーダルを開閉する共通処理 ---
+  // 編集対象やカレンダーで選んだ日付も、開く直前にセットする。
   const open = (type, value) => {
     if (type === 'plan' && Number.isInteger(value)) setPlanDay(value);
     if (type === 'event') setEventDate(typeof value === 'string' ? value : null);
@@ -350,12 +368,14 @@ export default function App() {
     setModal(type);
   };
 
+  // 閉じる時は、次回新規登録に古い編集データを持ち越さない。
   const closeModal = () => {
     setModal(null);
     setEditingVideo(null);
     setEditingWorkout(null);
   };
 
+  // 過去の入力値を候補として使い、種目・ラベルの手入力を減らす。
   const suggestions = {
     exercises: [...new Set([...gymExercises, ...workouts.map(item => item.exercise)])],
     tags: [...new Set(workouts.flatMap(item => item.tags || []))],
@@ -365,6 +385,7 @@ export default function App() {
     ...buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos }),
   ].slice(0, 8);
 
+  // ページごとに必要なデータと操作関数だけを渡す。
   const pages = {
     ホーム: (
       <Dashboard
@@ -462,6 +483,7 @@ export default function App() {
   );
 }
 
+// APIから取得済みのデータを、ダッシュボード用の読みやすい操作ログに変換する。
 function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos }) {
   const datedLogs = [
     ...workouts.map(workout => ({
@@ -504,6 +526,7 @@ function buildRegisteredLogs({ workouts, metrics, plans, calendarEvents, videos 
   return [...datedLogs, ...undatedLogs];
 }
 
+// DBの識別値を画面に表示する日本語へ変換する。
 function placeLabel(place) {
   return place === 'gym' ? 'ジム' : '自宅';
 }

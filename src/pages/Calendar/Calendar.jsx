@@ -9,6 +9,7 @@ import actionStyles from './CalendarActions.module.css';
 
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
+// DBの週間予定・期間予定を、FullCalendarが理解できるイベント形式に変換して表示する。
 export default function Calendar({
   plans,
   calendarEvents,
@@ -17,6 +18,9 @@ export default function Calendar({
   onSelectPlan,
   onSelectEvent,
 }) {
+  //期間指定は単発、指定なしは折り返し
+
+  // 繰り返しイベント
   const recurringEvents = plans.map(plan => ({
     id: `plan-${plan.id}`,
     title: `↻ ${plan.title}`,
@@ -24,6 +28,7 @@ export default function Calendar({
     extendedProps: { source: 'plan', item: plan },
     classNames: ['training-event'],
   }));
+  // 単発イベント
   const oneTimeEvents = calendarEvents.map(event => ({
     ...event,
     id: `event-${event.id}`,
@@ -34,6 +39,7 @@ export default function Calendar({
   const events = [...recurringEvents, ...oneTimeEvents];
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  // カレンダーだけでなく、今日やる予定を先に確認できるよう抽出する。
   const todayPlans = [
     ...plans
       .filter(plan => plan.day === now.getDay())
@@ -79,7 +85,9 @@ export default function Calendar({
           fixedWeekCount={false}
           dayMaxEvents={2}
           events={events}
+          // 空白の日付タップは、選んだ日付を初期値にして期間指定予定を開く。
           dateClick={info => onAddOneTime(info.dateStr)}
+          // 予定タップは種類ごとに編集モーダルへ
           eventClick={info => {
             info.jsEvent.preventDefault();
             const { source, item } = info.event.extendedProps;

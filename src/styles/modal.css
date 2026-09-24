@@ -1,3 +1,4 @@
+/* 画面全体を覆うモーダルの背景と前面表示。 */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -11,6 +12,7 @@
   background: #12201580;
 }
 
+/* 各フォームで共通利用するモーダル本体。縦長時は内部だけスクロールする。 */
 .modal {
   position: relative;
   display: grid;
@@ -29,6 +31,7 @@
 
 .modal *,
 .modal label,
+/* 重量・回数など、関連する入力欄を横並びにする。 */
 .input-grid {
   min-width: 0;
 }
@@ -40,6 +43,7 @@
 }
 
 .modal label,
+/* 記録に紐付ける参考動画の選択エリア。 */
 .video-field {
   display: grid;
   gap: 6px;
@@ -66,6 +70,7 @@
   gap: 10px;
 }
 
+/* 登録・保存を実行する共通の主要ボタン。 */
 .primary-button {
   display: inline-flex;
   align-items: center;
@@ -95,6 +100,7 @@
   margin-left: 10px;
 }
 
+/* モーダル右上の閉じるボタン。 */
 .dialog-close {
   position: absolute;
   top: 14px;
@@ -109,6 +115,7 @@
   cursor: pointer;
 }
 
+/* サムネイルを選択状態で見分けられる、参考動画の選択リスト。 */
 .video-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -191,6 +198,7 @@
   cursor: pointer;
 }
 
+/* スマホの画面高でも操作できるよう、モーダルを画面内に収める。 */
 @media (max-width: 620px) {
   .modal-backdrop {
     align-items: start;

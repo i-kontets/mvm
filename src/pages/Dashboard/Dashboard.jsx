@@ -2,6 +2,7 @@ import styles from './Dashboard.module.css';
 
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
+// 今日の予定、最近の記録、登録ログをまとめて見せるホーム画面。
 export default function Dashboard({
   workouts,
   plans,
@@ -11,6 +12,7 @@ export default function Dashboard({
   onAddPlan,
   onAddMetric,
 }) {
+  // APIの予定・体重・記録から、ダッシュボード専用の要約値を作る。
   const today = new Date().getDay();
   const todayPlan = plans.find(plan => Number(plan.day) === today);
   const latestWeight = metrics[0];
@@ -134,10 +136,12 @@ export default function Dashboard({
   );
 }
 
+// DBの場所識別値を、画面用の日本語に変換する。
 function placeLabel(place) {
   return place === 'gym' ? 'ジム' : '自宅';
 }
 
+// 筋トレと有酸素で異なる記録形式を、一覧用の1行テキストに変換する
 function workoutSummary(workout) {
   if (workout.record_type === 'cardio') {
     return `${workout.duration_minutes}分`;
@@ -148,6 +152,7 @@ function workoutSummary(workout) {
   return `${weight} × ${workout.reps}回`;
 }
 
+// データがないセクションで共通利用する案内表示。
 function Empty({ text, action, onClick }) {
   return (
     <div className={styles.empty}>

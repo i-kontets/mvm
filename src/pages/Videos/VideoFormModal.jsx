@@ -1,3 +1,4 @@
+// 参考動画の新規登録と編集で共通利用するモーダル。
 export default function VideoFormModal({ editingVideo, onClose, onSubmit }) {
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>

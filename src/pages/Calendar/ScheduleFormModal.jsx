@@ -1,5 +1,6 @@
 import { addOneDay, subtractOneDay, todayString } from '../../lib/date.js';
 
+// 曜日ごとに繰り返すトレーニング予定を登録するモーダル。
 export function WeeklyPlanModal({ planDay, onClose, onSubmit }) {
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
@@ -20,6 +21,7 @@ export function WeeklyPlanModal({ planDay, onClose, onSubmit }) {
   );
 }
 
+// カレンダーの日付から追加する、開始日・終了日を持つ予定のモーダル。
 export function DateEventModal({ eventDate, onClose, onSubmit }) {
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
@@ -49,9 +51,11 @@ export function DateEventModal({ eventDate, onClose, onSubmit }) {
   );
 }
 
+// タップした予定を種類に応じたフォームで編集・削除するモーダル。
 export function ScheduleDetailModal({ selected, onClose, onSubmit, onDelete }) {
   const schedule = selected.item;
   const isPlan = selected.type === 'plan';
+  // FullCalendarの終了日は翌日扱いになるので、入力欄では1日戻して見せる。
   const displayEnd = schedule.end ? subtractOneDay(schedule.end) : '';
 
   return (
@@ -96,10 +100,12 @@ export function ScheduleDetailModal({ selected, onClose, onSubmit, onDelete }) {
   );
 }
 
+// 日付入力の終了日を、FullCalendarの終了日ルール（翌日・排他的）へ合わせる。
 export const inclusiveEndToCalendarEnd = endDate => (
   endDate ? addOneDay(endDate) : null
 );
 
+// 登録・編集フォームで共通利用する曜日選択欄。
 function DaySelect({ defaultValue }) {
   return (
     <label>

@@ -10,6 +10,7 @@ const gymExercises = [
 // ジムでは機器を選択式にし、表記ゆれのない記録・集計を維持する。
 const cardioExercise = '自転車エルゴメーター／エアロバイク';
 
+// 場所・種目に応じて入力内容を切り替える、記録の新規登録・編集モーダル。
 export default function WorkoutFormModal({
   editingWorkout,
   videos,
@@ -17,11 +18,13 @@ export default function WorkoutFormModal({
   onClose,
   onSubmit,
 }) {
+  // 編集時は保存済みの値、新規時はジムの最初の種目を初期表示する。
   const [trainingPlace, setTrainingPlace] = useState(editingWorkout?.training_place || 'gym');
   const [exercise, setExercise] = useState(editingWorkout?.exercise || gymExercises[0]);
   const [isBodyweight, setIsBodyweight] = useState(editingWorkout?.weight_mode === 'bodyweight');
   const [recordType, setRecordType] = useState(editingWorkout?.record_type || 'strength');
 
+  // エアロバイクは常に有酸素として扱い、重量・回数入力を出さない。
   const isCardioExercise = exercise === cardioExercise;
   const isCardio = isCardioExercise || recordType === 'cardio';
 
@@ -35,6 +38,7 @@ export default function WorkoutFormModal({
     setRecordType(editingWorkout?.record_type || 'strength');
   }, [editingWorkout]);
 
+  // 場所変更時に、前の場所の種目を入力欄へ残さない。
   const handlePlaceChange = event => {
     const nextPlace = event.target.value;
     setTrainingPlace(nextPlace);
@@ -52,6 +56,7 @@ export default function WorkoutFormModal({
     }
   };
 
+  // 種目変更時に、有酸素・筋トレの入力モードを自動で整える。
   const handleExerciseChange = event => {
     const nextExercise = event.target.value;
     setExercise(nextExercise);
@@ -71,6 +76,7 @@ export default function WorkoutFormModal({
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
         <h2>{editingWorkout ? 'ワークアウトを編集' : 'ワークアウトを記録'}</h2>
 
+        {/* 手入力した過去の種目・ラベルを、ブラウザ標準の候補として再利用する。 */}
         <WorkoutSuggestions suggestions={suggestions} />
 
         <label>
@@ -177,6 +183,7 @@ export default function WorkoutFormModal({
           <input name="date" type="date" defaultValue={editingWorkout?.date || todayString()} required />
         </label>
 
+        {/* 記録と参考動画は中間テーブルで複数紐付けできる。 */}
         <div className="video-field">
           <span>この日に使った参考動画（任意）</span>
           <div className="video-options">
@@ -207,6 +214,7 @@ export default function WorkoutFormModal({
   );
 }
 
+// datalistは見た目を増やさず、入力候補だけをフォームへ追加する。
 function WorkoutSuggestions({ suggestions }) {
   return (
     <>

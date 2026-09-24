@@ -1,5 +1,6 @@
 import styles from './Videos.module.css';
 
+// 保存済みの参考動画をサムネイル付きで一覧表示する画面。
 export default function Videos({ videos, onAdd, onEdit }) {
   return (
     <section className={styles.page}>
@@ -20,6 +21,7 @@ export default function Videos({ videos, onAdd, onEdit }) {
         <div className={styles.grid}>
           {videos.map(video => (
             <article className={styles.card} key={video.id}>
+              {/* サムネイル取得に失敗した動画でも、カード自体は表示する。 */}
               {video.thumbnail ? (
                 <img src={video.thumbnail} alt="" />
               ) : (

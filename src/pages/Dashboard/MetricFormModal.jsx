@@ -1,5 +1,6 @@
 import { todayString } from '../../lib/date.js';
 
+// ダッシュボードから体重を追加するモーダル。
 export default function MetricFormModal({ onClose, onSubmit }) {
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>

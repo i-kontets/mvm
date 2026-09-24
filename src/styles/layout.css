@@ -1,8 +1,10 @@
+/* アプリ全体の2カラム構成と、ナビゲーションの共通スタイル。 */
 .shell {
   display: flex;
   min-height: 100vh;
 }
 
+/* PCでは左サイドバー、スマホでは下部ナビへ切り替わる。 */
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
@@ -84,6 +86,7 @@
   color: currentColor;
 }
 
+/* ページコンテンツの表示領域。 */
 main {
   width: calc(100% - 238px);
   max-width: 1480px;
@@ -110,6 +113,7 @@ main {
   font-size: 13px;
 }
 
+/* タブレット以下は、表示幅に合わせて余白を縮める。 */
 @media (max-width: 900px) {
   .sidebar {
     width: 70px;
@@ -137,6 +141,7 @@ main {
   }
 }
 
+/* スマホではナビを固定の下部バーにして片手操作しやすくする。 */
 @media (max-width: 620px) {
   .shell {
     display: block;

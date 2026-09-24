@@ -1,14 +1,17 @@
 import { useMemo, useState } from 'react';
 import styles from './Workouts.module.css';
 
+// 場所・キーワードで過去の記録を絞り込み、編集・削除の入口を出す画面。
 export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) {
   const [place, setPlace] = useState('all');
   const [keyword, setKeyword] = useState('');
 
+  // 各カードが動画IDからすぐ動画情報を引けるよう、検索用Mapを作る。
   const videoById = useMemo(
     () => new Map(videos.map(video => [Number(video.id), video])),
     [videos],
   );
+  // 種目名とラベルをまとめて検索対象にする。
   const visibleWorkouts = workouts.filter(workout => {
     const searchable = `${workout.exercise} ${(workout.tags || []).join(' ')}`;
 
@@ -77,7 +80,9 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
   );
 }
 
+// 1件のワークアウトと、紐付く動画サムネイルを表示するカード。
 function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
+  // APIが返した動画IDを、一覧取得済みの動画情報へ変換する。
   const linkedVideos = (workout.video_ids || [])
     .map(id => videoById.get(Number(id)))
     .filter(Boolean);
@@ -123,6 +128,7 @@ function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
   );
 }
 
+// DBの場所識別値を、カードに表示する日本語へ変換する。
 function placeLabel(place) {
   return place === 'gym' ? 'ジム' : '自宅';
 }

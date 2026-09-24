@@ -1,3 +1,19 @@
-.page { display: grid; gap: 16px; }
-.list { display: grid; gap: 8px; }
-.item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #e7e9e4; border-radius: 10px; background: #fff; }
+/* 将来の種目管理画面で使うページ・一覧・行の基本スタイル。 */
+.page { 
+    display: grid; 
+    gap: 16px; 
+}
+
+.list { 
+    display: grid; 
+    gap: 8px; 
+}
+.item { 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 14px; 
+    border: 1px solid #e7e9e4;
+    border-radius: 10px;
+    background: #fff;
+}

@@ -1,4 +1,4 @@
-/* FullCalendarが生成する要素はCSS Modulesの対象外なので、ここで明示的に装飾する。 */
+/* CSS Modules外で、FullCalendarが生成するイベント要素を直接調整する。 */
 .fc .training-event,
 .fc .training-event .fc-event-main {
   background: #dff5d3 !important;

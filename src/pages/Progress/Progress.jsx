@@ -13,6 +13,7 @@ import { Bar, Line } from 'react-chartjs-2';
 import { useMemo, useState } from 'react';
 import styles from './Progress.module.css';
 
+// Chart.jsで使う描画部品だけを登録
 ChartJS.register(
   BarElement,
   CategoryScale,
@@ -24,6 +25,7 @@ ChartJS.register(
   Tooltip,
 );
 
+// 通常サイズのグラフで共通利用する見た目・ツールチップの設定。
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -51,8 +53,10 @@ const chartOptions = {
   },
 };
 
+// 場所で絞り込んだ記録で、総重量・有酸素時間・グラフを計算して表示
 export default function Progress({ workouts, metrics }) {
   const [place, setPlace] = useState('all');
+  // 日付順の配列を基準に、チャートと各集計値を作る
   const sortedMetrics = sortByDate(metrics);
   const targetWorkouts = useMemo(
     () => workouts.filter(workout => place === 'all' || workout.training_place === place),
@@ -64,6 +68,7 @@ export default function Progress({ workouts, metrics }) {
   const weightedWorkouts = strengthWorkouts.filter(workout => workout.weight_mode !== 'bodyweight');
   const bodyweightWorkouts = strengthWorkouts.filter(workout => workout.weight_mode === 'bodyweight');
 
+  // 自重記録は、その日時点で最新の体重を重量として扱う
   const bodyweightAt = date =>
     Number([...sortedMetrics].reverse().find(metric => metric.date <= date)?.weight || sortedMetrics.at(-1)?.weight || 0);
 
@@ -171,6 +176,7 @@ export default function Progress({ workouts, metrics }) {
   );
 }
 
+// 有酸素の合計時間・記録回数を表示するカード。
 function CardioCard({ minutes, count }) {
   return (
     <article>
@@ -195,6 +201,7 @@ function CardioCard({ minutes, count }) {
   );
 }
 
+// 筋トレの総重量・記録回数を表示するカード。
 function MetricCard({ title, volume, count }) {
   return (
     <article>
@@ -219,6 +226,7 @@ function MetricCard({ title, volume, count }) {
   );
 }
 
+// 体重・日別トレーニング量を表示するグラフ枠。
 function ChartPanel({ title, emptyText, children }) {
   return (
     <section className={styles.chartPanel}>
@@ -232,10 +240,12 @@ function ChartPanel({ title, emptyText, children }) {
   );
 }
 
+// 元データを破壊せず、日付昇順のコピーを返す。
 function sortByDate(items) {
   return [...items].sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }
 
+// 1記録のトレーニング量を「重量*回数」で計算する。
 function workoutVolume(workout, bodyweightAt) {
   const weight = workout.weight_mode === 'bodyweight'
     ? Number(workout.weight || 0) || bodyweightAt(workout.date)
@@ -244,10 +254,12 @@ function workoutVolume(workout, bodyweightAt) {
   return weight * Number(workout.reps || 0);
 }
 
+// 複数記録のトレーニング量を合計する。
 function getWorkoutVolume(workouts, bodyweightAt) {
   return workouts.reduce((sum, workout) => sum + workoutVolume(workout, bodyweightAt), 0);
 }
 
+// 同じ日の記録をまとめ、棒グラフ用の総重量と種目一覧を作る。
 function buildVolumeByDate(workouts, bodyweightAt) {
   const volumeByDate = workouts.reduce((result, workout) => {
     const volume = workoutVolume(workout, bodyweightAt);
@@ -267,6 +279,7 @@ function buildVolumeByDate(workouts, bodyweightAt) {
   }));
 }
 
+// 種目ごとに日付とトレーニング量をまとめ、上位4種目をミニグラフへ渡す。
 function buildExerciseSeries(workouts, bodyweightAt) {
   const exerciseMap = workouts.reduce((result, workout) => {
     const name = workout.exercise || workout.name;
@@ -290,6 +303,7 @@ function buildExerciseSeries(workouts, bodyweightAt) {
     .slice(0, 4);
 }
 
+// 折れ線グラフ用のChart.jsデータの組み立て
 function lineData(labels, values, color) {
   return {
     labels,
@@ -307,6 +321,7 @@ function lineData(labels, values, color) {
   };
 }
 
+// 棒グラフ用のChart.jsデータを組み立てる。
 function barData(labels, values) {
   return {
     labels,
@@ -319,6 +334,7 @@ function barData(labels, values) {
   };
 }
 
+// 棒グラフのツールチップに、その日の種目名も追加表示する。
 function volumeChartOptions(exercisesByIndex) {
   return {
     ...chartOptions,
@@ -338,6 +354,7 @@ function volumeChartOptions(exercisesByIndex) {
   };
 }
 
+// 種目カード内の小さなグラフは、軸とツールチップを省いて変化を見せる。
 const miniChartOptions = {
   ...chartOptions,
   plugins: { legend: { display: false }, tooltip: { enabled: false } },
