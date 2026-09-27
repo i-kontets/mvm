@@ -24,7 +24,6 @@ import VideosIcon from './assets/navigation/videos.svg?react';
 import ProgressIcon from './assets/navigation/progress.svg?react';
 
 // --- アプリ全体で共有する表示定義 ---
-// SVGはSVGRでReactコンポーネントとして読み込む。色とサイズはCSS側で統一する。
 const navItems = [
   { Icon: HomeIcon, name: 'ホーム' },
   { Icon: WorkoutsIcon, name: '記録' },

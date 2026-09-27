@@ -7,10 +7,10 @@ const gymExercises = [
   'ショルダープレス',
   '自転車エルゴメーター／エアロバイク',
 ];
-// ジムでは機器を選択式にし、表記ゆれのない記録・集計を維持する。
+// ジムは機器を選択式
 const cardioExercise = '自転車エルゴメーター／エアロバイク';
 
-// 場所・種目に応じて入力内容を切り替える、記録の新規登録・編集モーダル。
+// 場所・種目に応じて入力内容を切り替える
 export default function WorkoutFormModal({
   editingWorkout,
   videos,
@@ -24,7 +24,7 @@ export default function WorkoutFormModal({
   const [isBodyweight, setIsBodyweight] = useState(editingWorkout?.weight_mode === 'bodyweight');
   const [recordType, setRecordType] = useState(editingWorkout?.record_type || 'strength');
 
-  // エアロバイクは常に有酸素として扱い、重量・回数入力を出さない。
+  // エアロバイクは有酸素として扱い、重量・回数入力を出さない。
   const isCardioExercise = exercise === cardioExercise;
   const isCardio = isCardioExercise || recordType === 'cardio';
 
@@ -44,25 +44,25 @@ export default function WorkoutFormModal({
     setTrainingPlace(nextPlace);
 
     if (nextPlace === 'home') {
-      // ジムの選択値を自宅の手入力欄へ持ち越さない。
+      // ジムの選択値を自宅の手入力欄へ引き継ぎしない
       setExercise('');
       return;
     }
 
-    // 自宅で入力した種目はジムの選択肢にないため、初期値へ戻す。
+    // 自宅で入力した種目はジムの選択肢にないので、初期値へ戻す。
     if (!gymExercises.includes(exercise)) {
       setExercise(gymExercises[0]);
       setRecordType('strength');
     }
   };
 
-  // 種目変更時に、有酸素・筋トレの入力モードを自動で整える。
+  // 種目変更時に、有酸素・筋トレの入力モードを整える。
   const handleExerciseChange = event => {
     const nextExercise = event.target.value;
     setExercise(nextExercise);
 
     if (nextExercise === cardioExercise) {
-      // エアロバイクは重量・回数ではなく、時間で記録する。
+      // エアロバイクは時間で記録
       setRecordType('cardio');
       setIsBodyweight(false);
     } else if (recordType === 'cardio') {
@@ -76,7 +76,7 @@ export default function WorkoutFormModal({
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
         <h2>{editingWorkout ? 'ワークアウトを編集' : 'ワークアウトを記録'}</h2>
 
-        {/* 手入力した過去の種目・ラベルを、ブラウザ標準の候補として再利用する。 */}
+        {/* 過去の種目・ラベルを、候補として利用する。 */}
         <WorkoutSuggestions suggestions={suggestions} />
 
         <label>
@@ -183,7 +183,7 @@ export default function WorkoutFormModal({
           <input name="date" type="date" defaultValue={editingWorkout?.date || todayString()} required />
         </label>
 
-        {/* 記録と参考動画は中間テーブルで複数紐付けできる。 */}
+        {/* 1つのワークアウトに、複数の参考動画を関連付けられる。 */}
         <div className="video-field">
           <span>この日に使った参考動画（任意）</span>
           <div className="video-options">

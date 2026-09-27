@@ -82,7 +82,6 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
 
 // 1件のワークアウトと、紐付く動画サムネイルを表示するカード。
 function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
-  // APIが返した動画IDを、一覧取得済みの動画情報へ変換する。
   const linkedVideos = (workout.video_ids || [])
     .map(id => videoById.get(Number(id)))
     .filter(Boolean);
@@ -128,7 +127,7 @@ function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
   );
 }
 
-// DBの場所識別値を、カードに表示する日本語へ変換する。
+// DBの値を、カードに表示する日本語へ変換する。
 function placeLabel(place) {
   return place === 'gym' ? 'ジム' : '自宅';
 }

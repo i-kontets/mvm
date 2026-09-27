@@ -1,7 +1,6 @@
 /* アプリ全体で共有するフォント・色・ブラウザ標準スタイルの初期化。 */
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
 
-/* 色・文字サイズなど、画面をまたいで使うデザイントークン。 */
 :root {
   --bg: #f5f6f2;
   --ink: #111813;
