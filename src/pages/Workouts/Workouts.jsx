@@ -11,9 +11,9 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
     () => new Map(videos.map(video => [Number(video.id), video])),
     [videos],
   );
-  // 種目名とラベルをまとめて検索対象にする。
+  // 種目名だけを検索対象にする。
   const visibleWorkouts = workouts.filter(workout => {
-    const searchable = `${workout.exercise} ${(workout.tags || []).join(' ')}`;
+    const searchable = workout.exercise;
 
     return (
       (place === 'all' || workout.training_place === place) &&
@@ -25,7 +25,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
     <section className={styles.page}>
       <header>
         <h1>記録</h1>
-        <span>種目とラベルで、過去の記録を探せます。</span>
+        <span>種目で、過去の記録を探せます。</span>
       </header>
 
       <button className={styles.primary} onClick={onAdd}>＋ 新しい記録</button>
@@ -33,7 +33,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
       {workouts.length === 0 ? (
         <div className={styles.empty}>
           <b>まだ記録はありません</b>
-          <p>種目とラベルを登録すると、過去の記録としてここに残ります。</p>
+          <p>種目を登録すると、過去の記録としてここに残ります。</p>
           <button onClick={onAdd}>最初の記録を追加 →</button>
         </div>
       ) : (
@@ -58,7 +58,7 @@ export default function Workouts({ workouts, videos, onAdd, onEdit, onDelete }) 
             <input
               value={keyword}
               onChange={event => setKeyword(event.target.value)}
-              placeholder="種目・ラベルを検索"
+              placeholder="種目を検索"
             />
           </section>
           <p className={styles.count}>{visibleWorkouts.length} 件の記録</p>
@@ -109,9 +109,6 @@ function WorkoutCard({ workout, videoById, onEdit, onDelete }) {
             </>
           )}
         </strong>
-        <div className={styles.tags}>
-          {(workout.tags || []).map(tag => <i key={tag}>#{tag}</i>)}
-        </div>
       </div>
       {linkedVideos.length > 0 && (
         <div className={styles.videoRefs}>

@@ -40,9 +40,14 @@ const sampleEvents = [{ id: 'sample-week', title: '連続トレーニング週�
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 const gymExercises = [
   'シーテッドレッグプレス',
+  'レッグエクステンション',
+  'シーテッドレッグカール',
   'チェストプレス',
   'ショルダープレス',
-  '自転車エルゴメーター／エアロバイク',
+  'ラットプルダウン',
+  'シーテッドロー',
+  'アブドミナルクランチ',
+  'バックエクステンション',
 ];
 
 export default function App() {
@@ -177,19 +182,19 @@ export default function App() {
   const saveWorkout = async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const exercise = String(form.get('exercise') || '').trim();
     const recordType = form.get('record_type') || 'strength';
+    // 有酸素は種目を選ばないので、保存用の共通名を設定する。
+    const exercise = recordType === 'cardio'
+      ? '有酸素運動'
+      : String(form.get('exercise') || '').trim();
     const weightMode = form.get('weight_mode') || 'weighted';
-    const tags = String(form.get('tags') || '')
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(Boolean);
     const workout = {
       // 現行UIでは種目名を記録の表示名としても利用する。
       name: exercise,
       exercise,
       category: '',
-      tags,
+      // ラベル機能は廃止したが、既存記録を編集しても過去の値は消さない。
+      tags: editingWorkout?.tags || [],
       training_place: form.get('training_place') || 'gym',
       record_type: recordType,
       weight_mode: weightMode,
@@ -374,10 +379,9 @@ export default function App() {
     setEditingWorkout(null);
   };
 
-  // 過去の入力値を候補として使い、種目・ラベルの手入力を減らす。
+  // 過去の種目を、自宅トレーニング時の入力候補として使う。
   const suggestions = {
     exercises: [...new Set([...gymExercises, ...workouts.map(item => item.exercise)])],
-    tags: [...new Set(workouts.flatMap(item => item.tags || []))],
   };
   const dashboardLogs = [
     ...logs,

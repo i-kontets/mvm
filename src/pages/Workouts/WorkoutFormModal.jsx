@@ -3,12 +3,15 @@ import { todayString } from '../../lib/date.js';
 
 const gymExercises = [
   'シーテッドレッグプレス',
+  'レッグエクステンション',
+  'シーテッドレッグカール',
   'チェストプレス',
   'ショルダープレス',
-  '自転車エルゴメーター／エアロバイク',
+  'ラットプルダウン',
+  'シーテッドロー',
+  'アブドミナルクランチ',
+  'バックエクステンション',
 ];
-// ジムは機器を選択式
-const cardioExercise = '自転車エルゴメーター／エアロバイク';
 
 // 場所・種目に応じて入力内容を切り替える
 export default function WorkoutFormModal({
@@ -24,9 +27,8 @@ export default function WorkoutFormModal({
   const [isBodyweight, setIsBodyweight] = useState(editingWorkout?.weight_mode === 'bodyweight');
   const [recordType, setRecordType] = useState(editingWorkout?.record_type || 'strength');
 
-  // エアロバイクは有酸素として扱い、重量・回数入力を出さない。
-  const isCardioExercise = exercise === cardioExercise;
-  const isCardio = isCardioExercise || recordType === 'cardio';
+  // 有酸素は種目を選ばず、時間だけを記録する。
+  const isCardio = recordType === 'cardio';
 
   useEffect(() => {
     const place = editingWorkout?.training_place || 'gym';
@@ -56,18 +58,9 @@ export default function WorkoutFormModal({
     }
   };
 
-  // 種目変更時に、有酸素・筋トレの入力モードを整える。
+  // 種目変更は選択した種目名だけを反映する。
   const handleExerciseChange = event => {
-    const nextExercise = event.target.value;
-    setExercise(nextExercise);
-
-    if (nextExercise === cardioExercise) {
-      // エアロバイクは時間で記録
-      setRecordType('cardio');
-      setIsBodyweight(false);
-    } else if (recordType === 'cardio') {
-      setRecordType('strength');
-    }
+    setExercise(event.target.value);
   };
 
   return (
@@ -76,7 +69,7 @@ export default function WorkoutFormModal({
         <button className="dialog-close" type="button" onClick={onClose}>×</button>
         <h2>{editingWorkout ? 'ワークアウトを編集' : 'ワークアウトを記録'}</h2>
 
-        {/* 過去の種目・ラベルを、候補として利用する。 */}
+        {/* 過去の種目を、自宅トレーニングの入力候補として利用する。 */}
         <WorkoutSuggestions suggestions={suggestions} />
 
         <label>
@@ -89,11 +82,9 @@ export default function WorkoutFormModal({
 
         <label>
           記録タイプ
-          {isCardioExercise && <input type="hidden" name="record_type" value="cardio" />}
           <select
-            name={isCardioExercise ? undefined : 'record_type'}
-            value={isCardio ? 'cardio' : 'strength'}
-            disabled={isCardioExercise}
+            name="record_type"
+            value={recordType}
             onChange={event => setRecordType(event.target.value)}
           >
             <option value="strength">筋トレ</option>
@@ -101,34 +92,28 @@ export default function WorkoutFormModal({
           </select>
         </label>
 
-        <label>
-          種目
-          {trainingPlace === 'gym' ? (
-            <select name="exercise" value={exercise} onChange={handleExerciseChange}>
-              {gymExercises.map(item => <option value={item} key={item}>{item}</option>)}
-            </select>
-          ) : (
-            <input
-              name="exercise"
-              list="exercise-names"
-              value={exercise}
-              onChange={handleExerciseChange}
-              placeholder="例: ベンチプレス"
-              required
-              autoFocus
-            />
-          )}
-        </label>
-
-        <label>
-          ラベル（任意）
-          <input
-            name="tags"
-            list="tag-names"
-            defaultValue={(editingWorkout?.tags || []).join(', ')}
-            placeholder="例: 胸, 三頭（カンマ区切り）"
-          />
-        </label>
+        {isCardio ? (
+          <input type="hidden" name="exercise" value="有酸素運動" />
+        ) : (
+          <label>
+            種目
+            {trainingPlace === 'gym' ? (
+              <select name="exercise" value={exercise} onChange={handleExerciseChange}>
+                {gymExercises.map(item => <option value={item} key={item}>{item}</option>)}
+              </select>
+            ) : (
+              <input
+                name="exercise"
+                list="exercise-names"
+                value={exercise}
+                onChange={handleExerciseChange}
+                placeholder="例: ベンチプレス"
+                required
+                autoFocus
+              />
+            )}
+          </label>
+        )}
 
         {isCardio ? (
           <label>
@@ -214,16 +199,11 @@ export default function WorkoutFormModal({
   );
 }
 
-// datalistは見た目を増やさず、入力候補だけをフォームへ追加する。
+// datalistは見た目を増やさず、種目の入力候補だけをフォームへ追加する。
 function WorkoutSuggestions({ suggestions }) {
   return (
-    <>
-      <datalist id="exercise-names">
-        {suggestions.exercises.map(item => <option value={item} key={item} />)}
-      </datalist>
-      <datalist id="tag-names">
-        {suggestions.tags.map(item => <option value={item} key={item} />)}
-      </datalist>
-    </>
+    <datalist id="exercise-names">
+      {suggestions.exercises.map(item => <option value={item} key={item} />)}
+    </datalist>
   );
 }
